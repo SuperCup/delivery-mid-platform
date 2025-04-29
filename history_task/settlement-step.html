@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结算环节管理 - 结算管理追踪系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            min-width: 1920px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <div class="w-[1920px] h-[80px] bg-white border-b border-gray-200 fixed top-0 left-0 z-50">
+        <div class="h-full px-6 flex items-center justify-between">
+            <span class="text-[#FF673C] text-xl font-bold">业务中台</span>
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-gray-500"></i>
+                </div>
+                <span class="text-gray-600">管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 左侧菜单栏 -->
+    <div class="fixed left-0 top-[80px] w-[254px] h-[calc(100vh-80px)] bg-white border-r border-gray-200 overflow-y-auto">
+        <!-- 菜单列表 -->
+        <nav class="mt-4">
+            <a href="data-files.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-database w-5"></i>
+                <span class="ml-3">数据文件</span>
+            </a>
+            <a href="documents.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-file-alt w-5"></i>
+                <span class="ml-3">文件文档</span>
+            </a>
+            <a href="account.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-user-cog w-5"></i>
+                <span class="ml-3">账号管理</span>
+            </a>
+            <a href="ai-knowledge.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-brain w-5"></i>
+                <span class="ml-3">AI知识库</span>
+            </a>
+            <div class="space-y-1">
+                <div class="flex items-center h-[60px] px-6 bg-[#D7E5FF] text-[#005EFF]">
+                    <i class="fas fa-tasks w-5"></i>
+                    <span class="ml-3">结算跟进</span>
+                </div>
+                <div class="space-y-1">
+                    <a href="settlement-step.html" class="flex items-center h-[60px] px-6 pl-8 bg-[#D7E5FF] text-[#005EFF]">
+                        <i class="fas fa-plus w-5"></i>
+                        <span class="ml-3">新建环节</span>
+                    </a>
+                    <a href="settlement-list.html" class="flex items-center h-[60px] px-6 pl-8 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span class="ml-3">结算进度</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 左侧已有环节列表（原客户栏位置） -->
+    <div class="fixed left-[254px] top-[80px] w-[354px] h-[calc(100vh-80px)] border-r border-gray-200 overflow-y-auto">
+        <div class="py-6 px-[25px]">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">已有环节</h2>
+            
+            <!-- 搜索框 -->
+            <div class="mb-4">
+                <div class="relative">
+                    <input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="搜索环节">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 环节列表 -->
+            <div class="space-y-3">
+                <!-- 品牌A的环节 -->
+                <div class="space-y-3">
+                    <div class="text-sm font-medium text-gray-500">品牌A</div>
+                    <div class="w-[304px] h-[63.86px] bg-white rounded-lg shadow hover:shadow-md cursor-pointer transition-all duration-200 p-4 flex items-center justify-between group hover:bg-[#D7E5FF]">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-file-alt text-blue-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900 group-hover:text-[#005EFF]">合同确认</div>
+                                <div class="text-xs text-gray-500">客户提供 | 3天</div>
+                            </div>
+                        </div>
+                        <button class="invisible group-hover:visible text-[#005EFF]">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="w-[304px] h-[63.86px] bg-white rounded-lg shadow hover:shadow-md cursor-pointer transition-all duration-200 p-4 flex items-center justify-between group hover:bg-[#D7E5FF]">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-file-invoice text-blue-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900 group-hover:text-[#005EFF]">发票审核</div>
+                                <div class="text-xs text-gray-500">内部提供 | 2天</div>
+                            </div>
+                        </div>
+                        <button class="invisible group-hover:visible text-[#005EFF]">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 品牌B的环节 -->
+                <div class="space-y-3">
+                    <div class="text-sm font-medium text-gray-500">品牌B</div>
+                    <div class="w-[304px] h-[63.86px] bg-white rounded-lg shadow hover:shadow-md cursor-pointer transition-all duration-200 p-4 flex items-center justify-between group hover:bg-[#D7E5FF]">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-file-contract text-blue-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900 group-hover:text-[#005EFF]">结算单确认</div>
+                                <div class="text-xs text-gray-500">客户提供 | 5天</div>
+                            </div>
+                        </div>
+                        <button class="invisible group-hover:visible text-[#005EFF]">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="w-[304px] h-[63.86px] bg-white rounded-lg shadow hover:shadow-md cursor-pointer transition-all duration-200 p-4 flex items-center justify-between group hover:bg-[#D7E5FF]">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-calculator text-blue-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900 group-hover:text-[#005EFF]">账单核对</div>
+                                <div class="text-xs text-gray-500">内部提供 | 3天</div>
+                            </div>
+                        </div>
+                        <button class="invisible group-hover:visible text-[#005EFF]">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="ml-[608px] pt-[80px]">
+        <div class="p-6">
+            <!-- 白色背景容器 -->
+            <div class="w-[1292px] h-[912px] bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-6">创建环节</h2>
+                    <!-- 表单内容 -->
+                    <div class="max-w-3xl mx-auto mt-[98px]">
+                        <form class="space-y-8" id="settlementForm">
+                            <!-- 品牌归属 -->
+                            <div class="flex items-center">
+                                <label for="brand" class="w-[120px] text-sm font-medium text-gray-700">品牌归属</label>
+                                <div class="flex-1">
+                                    <select id="brand" name="brand" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-400 rounded-md" required>
+                                        <option value="">请选择品牌</option>
+                                        <option value="brand1">品牌A</option>
+                                        <option value="brand2">品牌B</option>
+                                        <option value="brand3">品牌C</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 环节名称 -->
+                            <div class="flex items-center">
+                                <label for="step-name" class="w-[120px] text-sm font-medium text-gray-700">环节名称</label>
+                                <div class="flex-1">
+                                    <input type="text" name="step-name" id="step-name" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-400 rounded-md" placeholder="请输入环节名称" required>
+                                </div>
+                            </div>
+
+                            <!-- 环节周期 -->
+                            <div class="flex items-center">
+                                <label for="step-duration" class="w-[120px] text-sm font-medium text-gray-700">环节周期(天)</label>
+                                <div class="flex-1">
+                                    <input type="number" name="step-duration" id="step-duration" min="1" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-400 rounded-md" placeholder="请输入环节所需天数" required>
+                                </div>
+                            </div>
+
+                            <!-- 文件类型 -->
+                            <div class="flex items-center">
+                                <label for="file-type" class="w-[120px] text-sm font-medium text-gray-700">文件类型</label>
+                                <div class="flex-1">
+                                    <select id="file-type" name="file-type" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-400 rounded-md" required onchange="handleFileTypeChange()">
+                                        <option value="">请选择文件类型</option>
+                                        <option value="PO">PO</option>
+                                        <option value="settlement">结算单</option>
+                                        <option value="report">复盘报告</option>
+                                        <option value="bill">账单明细</option>
+                                        <option value="screenshot">活动截图</option>
+                                        <option value="other">其他</option>
+                                    </select>
+                                    <!-- 其他文件类型输入框 -->
+                                    <div id="other-file-type" class="mt-2 hidden">
+                                        <input type="text" name="other-file-type" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-400 rounded-md" placeholder="请输入具体的文件类型">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 收集方式 -->
+                            <div class="flex items-center">
+                                <label class="w-[120px] text-sm font-medium text-gray-700">收集方式</label>
+                                <div class="flex-1">
+                                    <div class="space-y-2">
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="collection-auto" name="collection-type" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-400" value="auto">
+                                            </div>
+                                            <div class="ml-3">
+                                                <label for="collection-auto" class="text-sm font-medium text-gray-700">自动</label>
+                                                <p class="text-xs text-gray-500">该文件可从内部系统中直接获取，如PMS、到家系统、优惠券系统</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="collection-manual" name="collection-type" type="radio" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-400" value="manual">
+                                            </div>
+                                            <div class="ml-3">
+                                                <label for="collection-manual" class="text-sm font-medium text-gray-700">手动</label>
+                                                <p class="text-xs text-gray-500">该文件需整理后手动上传</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 负责人类型 -->
+                            <div class="flex items-center">
+                                <label for="responsible-type" class="w-[120px] text-sm font-medium text-gray-700">负责人类型</label>
+                                <div class="flex-1">
+                                    <select id="responsible-type" name="responsible-type" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-400 rounded-md" required onchange="handleResponsibleTypeChange()">
+                                        <option value="">请选择负责人类型</option>
+                                        <option value="client">客户提供</option>
+                                        <option value="internal">内部提供</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 负责人 -->
+                            <div class="flex items-center">
+                                <label for="responsible-person" class="w-[120px] text-sm font-medium text-gray-700">负责人</label>
+                                <div class="flex-1">
+                                    <select id="responsible-person" name="responsible-person" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-400 rounded-md" required>
+                                        <option value="">请选择负责人</option>
+                                        <!-- 客户提供选项 -->
+                                        <optgroup label="客户提供" id="client-options" style="display: none;">
+                                            <option value="client_purchase">采购部</option>
+                                            <option value="client_brand">品牌部</option>
+                                            <option value="client_marketing">市场部</option>
+                                            <option value="client_finance">财务部</option>
+                                        </optgroup>
+                                        <!-- 内部提供选项 -->
+                                        <optgroup label="内部提供" id="internal-options" style="display: none;">
+                                            <option value="internal_operation">运营部</option>
+                                            <option value="internal_finance">财务部</option>
+                                            <option value="internal_legal">法务部</option>
+                                            <option value="internal_admin">行政部</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 备注信息 -->
+                            <div class="flex items-center">
+                                <label for="remarks" class="w-[120px] text-sm font-medium text-gray-700 pt-3">备注信息</label>
+                                <div class="flex-1">
+                                    <textarea id="remarks" name="remarks" rows="3" class="mt-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-400 rounded-md" placeholder="请输入备注信息"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 提交按钮 -->
+                            <div class="flex justify-center space-x-3">
+                                <button type="button" onclick="window.history.back()" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    取消
+                                </button>
+                                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    保存
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表单提交处理
+            document.getElementById('settlementForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // 这里添加表单提交逻辑
+                alert('表单提交成功！');
+                // 提交成功后跳转到settlement-list.html
+                window.location.href = 'settlement-list.html';
+            });
+        });
+
+        // 处理文件类型变化
+        function handleFileTypeChange() {
+            const fileType = document.getElementById('file-type');
+            const otherFileType = document.getElementById('other-file-type');
+            
+            if (fileType.value === 'other') {
+                otherFileType.classList.remove('hidden');
+                otherFileType.querySelector('input').required = true;
+            } else {
+                otherFileType.classList.add('hidden');
+                otherFileType.querySelector('input').required = false;
+            }
+        }
+
+        // 处理负责人类型变化
+        function handleResponsibleTypeChange() {
+            const responsibleType = document.getElementById('responsible-type');
+            const clientOptions = document.getElementById('client-options');
+            const internalOptions = document.getElementById('internal-options');
+            const responsiblePerson = document.getElementById('responsible-person');
+            
+            // 重置负责人选择
+            responsiblePerson.value = '';
+            
+            if (responsibleType.value === 'client') {
+                clientOptions.style.display = '';
+                internalOptions.style.display = 'none';
+            } else if (responsibleType.value === 'internal') {
+                clientOptions.style.display = 'none';
+                internalOptions.style.display = '';
+            } else {
+                clientOptions.style.display = 'none';
+                internalOptions.style.display = 'none';
+            }
+        }
+
+        // 复制环节到表单
+        function copyStepToForm(stepData) {
+            document.getElementById('brand').value = stepData.brand;
+            document.getElementById('step-name').value = stepData.name;
+            document.getElementById('step-duration').value = stepData.duration;
+            document.getElementById('responsible-type').value = stepData.responsibleType;
+            handleResponsibleTypeChange();
+            // 其他字段的复制...
+        }
+
+        // 示例数据
+        const sampleSteps = {
+            'brand1': [
+                { name: '合同确认', responsibleType: 'client', duration: 3 },
+                { name: '发票审核', responsibleType: 'internal', duration: 2 }
+            ],
+            'brand2': [
+                { name: '结算单确认', responsibleType: 'client', duration: 5 },
+                { name: '账单核对', responsibleType: 'internal', duration: 3 }
+            ]
+        };
+
+        // 搜索功能
+        document.querySelector('input[placeholder="搜索环节"]').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            // 实现搜索逻辑...
+        });
+    </script>
+</body>
+</html> 

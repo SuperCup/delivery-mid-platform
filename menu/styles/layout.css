@@ -1,0 +1,129 @@
+/* 全局样式 */
+body {
+    min-width: 1920px;
+    background-color: #F9FAFB;
+}
+
+/* 导航栏样式 */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    z-index: 50;
+}
+
+header h1 {
+    color: #FF673C;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #F3F4F6;
+    border-radius: 9999px;
+}
+
+/* 左侧菜单样式 */
+nav {
+    position: fixed;
+    top: 80px;
+    width: 254px;
+    height: calc(100vh - 80px);
+    background-color: #FFFFFF;
+    border-right: 1px solid #E5E7EB;
+}
+
+.menu-item a {
+    height: 60px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.menu-item a:hover {
+    background-color: #D7E5FF;
+    color: #005EFF;
+}
+
+.menu-item a.active {
+    background-color: #D7E5FF;
+    color: #005EFF;
+}
+
+.menu-item i {
+    margin-right: 12px;
+}
+
+/* 客户栏样式 */
+aside {
+    position: fixed;
+    top: 80px;
+    left: 254px;
+    width: 354px;
+    height: calc(100vh - 80px);
+    background-color: #FFFFFF;
+    border-right: 1px solid #E5E7EB;
+    padding: 24px;
+}
+
+.customer-search {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    margin-bottom: 24px;
+}
+
+.customer-card {
+    width: 304px;
+    height: 64px;
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.customer-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.customer-card i {
+    color: #005EFF;
+    margin-right: 12px;
+}
+
+/* 功能区样式 */
+main {
+    margin-left: 608px;
+    padding-top: 80px;
+}
+
+.content-container {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    width: 1292px;
+    height: 912px;
+    padding: 24px;
+}
+
+/* 响应式布局 */
+.wide-layout main {
+    margin-left: 254px;
+}
+
+.wide-layout .content-container {
+    width: 1621px;
+} 

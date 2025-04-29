@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结算模板管理</title>
+    <link href="styles/template-list.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- 引入抽屉js -->
+    <script src="scripts/drawer.js"></script>
+</head>
+<body class="bg-[#F9FAFB] min-w-[1920px]">
+    <!-- 页面内容 -->
+    <div class="p-6">
+        <div class="bg-white rounded-lg shadow-lg w-full h-[912px] p-6">
+            <!-- 标题和操作区 -->
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center">
+                    <button onclick="window.history.back()" class="mr-4 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <h2 class="text-lg font-bold">结算模板管理</h2>
+                </div>
+                <a href="template-create.html" class="bg-[#005EFF] text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>新建流程
+                </a>
+            </div>
+
+            <!-- 导航卡片 -->
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <!-- 模板阵列入口 -->
+                <div id="templateArrayTab" class="nav-card active">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-alt icon"></i>
+                        <div>
+                            <div class="title">流程管理</div>
+                            <div class="description">当前客户不同类型的结算流程</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 资料管理入口 -->
+                <div id="materialTab" class="nav-card">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-alt icon"></i>
+                        <div>
+                            <div class="title">资料管理</div>
+                            <div class="description">结算过程所需资料汇总</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 环节管理入口 -->
+                <div id="processTab" class="nav-card">
+                    <div class="flex items-center">
+                        <i class="fas fa-tasks icon"></i>
+                        <div>
+                            <div class="title">环节管理</div>
+                            <div class="description">结算流程中的具体环节</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 客户管理入口 -->
+                <div id="customerTab" class="nav-card">
+                    <div class="flex items-center">
+                        <i class="fas fa-users icon"></i>
+                        <div>
+                            <div class="title">客户管理</div>
+                            <div class="description">管理客户方对接结算的主体或联系人</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模板阵列列表 -->
+            <div id="templateArrayContent" class="template-content">
+                <div class="content-header">
+                    <h3 class="text-lg font-semibold">流程列表</h3>
+                    <a href="template-create.html" class="add-content-btn">
+                        <i class="fas fa-plus"></i> 新建流程
+                    </a>
+                </div>
+                <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        流程启用后，业务人员在PMS创建结算单后，系统会根据结算单对应的结算科目信息，匹配适用的流程，并拆分生成多个子结算任务，业务人员可以找到自己在流程中的跟进环节，完成资料补齐，与必要确认动作。
+                    </p>
+                </div>
+                <div class="overflow-x-auto">
+                    <div class="flex space-x-4 min-w-max" id="templateList">
+                        <!-- 模板卡片将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 资料管理列表 -->
+            <div id="materialContent" class="template-content hidden">
+                <div class="content-header">
+                    <h3 class="text-lg font-semibold">资料列表</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <input type="text" id="materialSearch" placeholder="搜索资料名称" 
+                                class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                        </div>
+                        <button onclick="showDocumentCreateDrawer()" class="add-content-btn">
+                            <i class="fas fa-plus"></i> 新增资料
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        请整理结算流程中需要准备的资料，并设置资料的获取方式，资料样例，便于流程中需要准备该资料的人员更清晰的知晓，如何获取与整理符合规范的资料。
+                    </p>
+                </div>
+                <div id="materialList" class="grid grid-cols-4 gap-4">
+                    <!-- 资料列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 环节管理列表 -->
+            <div id="processContent" class="template-content hidden">
+                <div class="content-header">
+                    <h3 class="text-lg font-semibold">环节列表</h3>
+                    <div class="flex gap-4">
+                        <button onclick="showProcessCreateDrawer()" class="add-content-btn">
+                            <i class="fas fa-plus"></i> 新增环节
+                        </button>
+                    </div>
+                </div>
+                <!-- 环节类型导航 -->
+                <div class="flex space-x-4 mb-6">
+                    <button class="process-type-btn active" data-type="material">
+                        <span class="process-type-icon"><i class="fas fa-file-alt"></i></span>
+                        <span class="process-type-text">资料准备</span>
+                    </button>
+                    <button class="process-type-btn" data-type="confirmation">
+                        <span class="process-type-icon"><i class="fas fa-check-circle"></i></span>
+                        <span class="process-type-text">结算确认</span>
+                    </button>
+                    <button class="process-type-btn" data-type="customer">
+                        <span class="process-type-icon"><i class="fas fa-building"></i></span>
+                        <span class="process-type-text">客户系统结算</span>
+                    </button>
+                </div>
+                <!-- 环节列表内容 -->
+                <div id="processList" class="grid grid-cols-3 gap-4">
+                    <!-- 环节列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 客户管理列表 -->
+            <div id="customerContent" class="template-content hidden">
+                <div class="content-header">
+                    <h3 class="text-lg font-semibold">客户管理</h3>
+                    <button onclick="showCustomerCreateDrawer()" class="add-content-btn">
+                        <i class="fas fa-plus"></i> 新增客户
+                    </button>
+                </div>
+                <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        请时刻保持对客户的跟进，如有信息变动，请及时更新。
+                    </p>
+                </div>
+                <div class="grid grid-cols-3 gap-4" id="customerList">
+                    <!-- 客户列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 资料样例预览模态框 -->
+    <div id="materialPreviewModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">资料样例预览</h3>
+                <button id="closeMaterialPreviewModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="materialPreviewContent" class="preview-content">
+                <!-- 预览内容将在这里显示 -->
+                <div class="preview-container">
+                    <div class="preview-loading hidden">
+                        <i class="fas fa-spinner fa-spin"></i> 加载中...
+                    </div>
+                    <div class="preview-error hidden">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>无法预览该文件类型或文件不存在</p>
+                    </div>
+                    <iframe id="previewFrame" class="hidden"></iframe>
+                    <img id="previewImage" class="hidden">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 环节预览模态框 -->
+    <div id="processPreviewModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">环节详情</h3>
+                <button id="closePreviewModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="processPreviewContent">
+                <!-- 环节详情内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 默认环节配置模态框 -->
+    <div id="defaultProcessModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">默认环节配置</h3>
+                <button id="closeDefaultProcessModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p class="text-gray-600 mb-4">配置创建模板时可选的默认资料准备环节</p>
+                <div id="defaultProcessList" class="space-y-2">
+                    <!-- 默认环节列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button id="closeDefaultProcess" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入脚本 -->
+    <script src="scripts/template-list.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded'); // 调试日志
+            // 初始化标签页切换
+            initTabs();
+            // 加载模板列表
+            loadTemplates();
+            // 确保资料列表容器存在
+            const materialList = document.getElementById('materialList');
+            if (materialList) {
+                console.log('Material list container found'); // 调试日志
+            } else {
+                console.error('Material list container not found'); // 调试日志
+            }
+        });
+    </script>
+</body>
+</html> 

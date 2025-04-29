@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结算助手 - 业务中台</title>
+    <link href="styles/settlement-assistant.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-[#F9FAFB] min-w-[1920px]">
+    <!-- 页面内容 -->
+    <div class="p-6">
+        <div class="bg-white rounded-lg shadow-lg w-full h-[912px] p-6">
+            <!-- 标题和操作区 -->
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center">
+                    <h2 class="text-lg font-bold">结算助手</h2>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="createTaskBtn" class="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i>创建任务
+                    </button>
+                    <a href="template-list.html" class="bg-white text-[#005EFF] px-4 py-2 rounded-md border border-[#005EFF] hover:bg-blue-50">
+                        <i class="fas fa-book mr-2"></i>模板库
+                    </a>
+                </div>
+            </div>
+
+            <!-- 筛选区域 -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">任务状态</label>
+                        <select class="w-full px-3 py-2 border rounded-md">
+                            <option value="">全部</option>
+                            <option value="pending">待处理</option>
+                            <option value="processing">处理中</option>
+                            <option value="completed">已完成</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">创建时间</label>
+                        <select class="w-full px-3 py-2 border rounded-md">
+                            <option value="">全部</option>
+                            <option value="today">今天</option>
+                            <option value="week">本周</option>
+                            <option value="month">本月</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">客户</label>
+                        <select class="w-full px-3 py-2 border rounded-md">
+                            <option value="">全部</option>
+                            <option value="customer1">嘉士伯</option>
+                            <option value="customer2">达能</option>
+                            <option value="customer3">伊利</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务列表 -->
+            <div class="bg-white rounded-lg border border-gray-200">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">任务名称</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="taskList">
+                            <!-- 任务列表将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建任务模态框 -->
+    <div id="createTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">创建新任务</h3>
+                <button id="closeCreateModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="selectTemplateBtn" class="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-700 bg-white border border-[#005EFF] text-[#005EFF] px-4 py-2 rounded-md hover:bg-blue-50">
+                        <i class="fas fa-book mr-2"></i>从模板选择
+                    </button>
+                    <button id="createNewTemplateBtn" class="bg-white border border-[#005EFF] text-[#005EFF] px-4 py-2 rounded-md hover:bg-blue-50 bg-white border border-[#005EFF] text-[#005EFF] px-4 py-2 rounded-md hover:bg-blue-50">
+                        <i class="fas fa-plus mr-2"></i>创建新模板
+                    </button>
+                </div>
+            </div>
+            <form id="createTaskForm" class="hidden">
+                <div class="mb-4">              
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="taskName">
+                        任务名称
+                    </label>
+                    <input type="text" id="taskName" class="w-full px-3 py-2 border rounded-md">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="taskCustomer">
+                        选择客户
+                    </label>
+                    <select id="taskCustomer" class="w-full px-3 py-2 border rounded-md">
+                        <option value="">请选择客户</option>
+                        <option value="customer1">嘉士伯</option>
+                        <option value="customer2">达能</option>
+                        <option value="customer3">伊利</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="taskTemplate">
+                        选择模板
+                    </label>
+                    <select id="taskTemplate" class="w-full px-3 py-2 border rounded-md">
+                        <option value="">请选择模板</option>
+                        <!-- 模板选项将通过JavaScript动态生成 -->
+                    </select>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" id="cancelCreate" class="mr-2 px-4 py-2 text-gray-600 hover:text-gray-800">
+                        取消
+                    </button>
+                    <button type="submit" class="bg-[#005EFF] text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        创建
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 引入脚本 -->
+    <script src="scripts/settlement-assistant.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化所有功能
+            loadTasks();
+            initCreateTaskModal();
+            initFilters();
+        });
+    </script>
+</body>
+</html> 

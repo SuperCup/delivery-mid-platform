@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>流程配置 - 结算管理追踪系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .step-item {
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+        .step-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .process-area {
+            min-height: 400px;
+            border: 2px dashed #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .process-area.drag-over {
+            border-color: #3B82F6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        .process-step {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .process-step::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background-color: #e5e7eb;
+        }
+        .process-step:last-child::after {
+            display: none;
+        }
+        .process-step:hover {
+            transform: translateX(4px);
+        }
+        .step-actions {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 4px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .process-step:hover .step-actions {
+            opacity: 1;
+        }
+        .step-actions button {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .step-actions button:hover {
+            transform: translateY(-1px);
+        }
+        .step-actions .move-btn {
+            color: #3B82F6;
+        }
+        .step-actions .move-btn:hover {
+            background-color: #EBF5FF;
+        }
+        .step-actions .delete-btn {
+            color: #EF4444;
+        }
+        .step-actions .delete-btn:hover {
+            background-color: #FEE2E2;
+        }
+        body {
+            min-width: 1920px;
+        }
+        .quotation-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .quotation-tag button {
+            margin-left: 0.5rem;
+            color: #1E40AF;
+            opacity: 0.5;
+        }
+        .quotation-tag button:hover {
+            opacity: 1;
+        }
+        #quotation-dropdown {
+            display: none;
+            position: absolute;
+            z-index: 50;
+            width: 100%;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <div class="w-[1920px] h-[80px] bg-white border-b border-gray-200 fixed top-0 left-0 z-50">
+        <div class="h-full px-6 flex items-center justify-between">
+            <span class="text-[#FF673C] text-xl font-bold">业务中台</span>
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-gray-500"></i>
+                </div>
+                <span class="text-gray-600">管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 左侧菜单栏 -->
+    <div class="fixed left-0 top-[80px] w-[254px] h-[calc(100vh-80px)] bg-white border-r border-gray-200 overflow-y-auto">
+        <!-- 菜单列表 -->
+        <nav class="mt-4">
+            <a href="data-files.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-database w-5"></i>
+                <span class="ml-3">数据文件</span>
+            </a>
+            <a href="documents.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-file-alt w-5"></i>
+                <span class="ml-3">文件文档</span>
+            </a>
+            <a href="account.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-user-cog w-5"></i>
+                <span class="ml-3">账号管理</span>
+            </a>
+            <a href="ai-knowledge.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-brain w-5"></i>
+                <span class="ml-3">AI知识库</span>
+            </a>
+            <div class="space-y-1">
+                <div class="flex items-center h-[60px] px-6 bg-[#D7E5FF] text-[#005EFF]">
+                    <i class="fas fa-tasks w-5"></i>
+                    <span class="ml-3">结算跟进</span>
+                </div>
+                <div class="space-y-1">
+                    <a href="settlement-step.html" class="flex items-center h-[60px] px-6 pl-8 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                        <i class="fas fa-plus w-5"></i>
+                        <span class="ml-3">新建环节</span>
+                    </a>
+                    <a href="settlement-list.html" class="flex items-center h-[60px] px-6 pl-8 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span class="ml-3">结算进度</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="ml-[254px] pt-[80px]">
+        <div class="p-6">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- 左侧环节列表 -->
+                <div class="col-span-3">
+                    <div class="bg-white shadow rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">可用环节</h3>
+                            <a href="settlement-step.html" class="text-blue-600 hover:text-blue-700 text-sm">
+                                <i class="fas fa-plus"></i> 新建环节
+                            </a>
+                        </div>
+                        <div class="space-y-2">
+                            <!-- 环节列表 -->
+                            <div class="step-item bg-blue-50 p-3 rounded-md" draggable="true" data-step-id="1">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-invoice text-blue-500"></i>
+                                        <span class="ml-2 text-sm font-medium text-gray-700">发票审核</span>
+                                    </div>
+                                    <span class="text-xs text-blue-600">品牌A</span>
+                                </div>
+                                <div class="mt-1 text-xs text-gray-500">
+                                    <p>负责人: 张三</p>
+                                    <p>周期: 3天</p>
+                                </div>
+                            </div>
+                            <div class="step-item bg-green-50 p-3 rounded-md" draggable="true" data-step-id="2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-contract text-green-500"></i>
+                                        <span class="ml-2 text-sm font-medium text-gray-700">合同确认</span>
+                                    </div>
+                                    <span class="text-xs text-green-600">品牌B</span>
+                                </div>
+                                <div class="mt-1 text-xs text-gray-500">
+                                    <p>负责人: 李四</p>
+                                    <p>周期: 2天</p>
+                                </div>
+                            </div>
+                            <div class="step-item bg-purple-50 p-3 rounded-md" draggable="true" data-step-id="3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-signature text-purple-500"></i>
+                                        <span class="ml-2 text-sm font-medium text-gray-700">签字盖章</span>
+                                    </div>
+                                    <span class="text-xs text-purple-600">品牌C</span>
+                                </div>
+                                <div class="mt-1 text-xs text-gray-500">
+                                    <p>负责人: 王五</p>
+                                    <p>周期: 1天</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧流程配置区域 -->
+                <div class="col-span-9">
+                    <div class="bg-white shadow rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900">流程配置</h3>
+                                <p class="text-sm text-gray-500">拖拽环节到此处构建流程</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" onclick="resetProcess()">
+                                    <i class="fas fa-redo mr-2"></i>
+                                    重置
+                                </button>
+                                <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" onclick="saveProcess()">
+                                    <i class="fas fa-save mr-2"></i>
+                                    保存流程
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 报价单选择 -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">选择报价单</label>
+                            <div class="mt-1 relative">
+                                <!-- 搜索框 -->
+                                <div class="relative">
+                                    <input type="text" id="quotation-search" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="搜索报价单">
+                                    <div class="absolute left-3 top-2.5 text-gray-400">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                </div>
+                                
+                                <!-- 下拉选项区域 -->
+                                <div id="quotation-dropdown">
+                                    <div class="py-1">
+                                        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" value="SG-220964">
+                                                <span class="ml-2 text-sm text-gray-700">SG-220964 伊利新品试销工具&会员福利社升级项目 BQ-25014194 液态奶派赠权限划分功能开发报价单</span>
+                                            </label>
+                                        </div>
+                                        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" value="SG-220965">
+                                                <span class="ml-2 text-sm text-gray-700">SG-220965 蒙牛新品推广项目 BQ-25014195 新品推广活动策划报价单</span>
+                                            </label>
+                                        </div>
+                                        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" value="SG-220966">
+                                                <span class="ml-2 text-sm text-gray-700">SG-220966 光明乳业品牌升级项目 BQ-25014196 品牌升级方案报价单</span>
+                                            </label>
+                                        </div>
+                                        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" value="SG-220967">
+                                                <span class="ml-2 text-sm text-gray-700">SG-220967 雀巢新品上市项目 BQ-25014197 新品上市推广方案报价单</span>
+                                            </label>
+                                        </div>
+                                        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" value="SG-220968">
+                                                <span class="ml-2 text-sm text-gray-700">SG-220968 达能品牌活动项目 BQ-25014198 品牌活动执行方案报价单</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- 确认按钮 -->
+                                    <div class="px-4 py-2 border-t border-gray-200">
+                                        <button id="confirm-selection" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            确认选择
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 已选标签区域 -->
+                                <div id="selected-tags" class="mt-2 space-y-2">
+                                    <!-- 标签将通过JavaScript动态添加 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="process-area rounded-lg p-4" id="processArea">
+                            <div class="text-center text-gray-500 mb-4" id="emptyHint">
+                                <i class="fas fa-arrow-up text-2xl"></i>
+                                <p class="mt-2">从左侧拖拽环节到此处构建流程</p>
+                            </div>
+                            <!-- 示例流程步骤 -->
+                            <div class="space-y-8" id="processSteps">
+                                <!-- 流程步骤将通过拖拽动态添加 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化拖拽功能
+            const processArea = document.getElementById('processArea');
+            const emptyHint = document.getElementById('emptyHint');
+            const processSteps = document.getElementById('processSteps');
+            const stepItems = document.querySelectorAll('.step-item');
+
+            // 拖拽开始
+            stepItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', e.target.innerHTML);
+                    e.dataTransfer.setData('stepId', e.target.dataset.stepId);
+                    e.target.classList.add('opacity-50');
+                });
+
+                item.addEventListener('dragend', function(e) {
+                    e.target.classList.remove('opacity-50');
+                });
+            });
+
+            // 拖拽进入目标区域
+            processArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            processArea.addEventListener('dragleave', function(e) {
+                this.classList.remove('drag-over');
+            });
+
+            // 放置处理
+            processArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                const data = e.dataTransfer.getData('text/plain');
+                const stepId = e.dataTransfer.getData('stepId');
+                
+                if (data && stepId) {
+                    emptyHint.style.display = 'none';
+                    
+                    const newStep = document.createElement('div');
+                    newStep.className = 'process-step bg-blue-50 p-4 rounded-lg';
+                    newStep.innerHTML = data;
+                    newStep.dataset.stepId = stepId;
+                    
+                    // 添加操作按钮
+                    const actions = document.createElement('div');
+                    actions.className = 'step-actions flex space-x-2';
+                    actions.innerHTML = `
+                        <button class="move-btn" onclick="moveStep(this, 'up')">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button class="move-btn" onclick="moveStep(this, 'down')">
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                        <button class="delete-btn" onclick="deleteStep(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    newStep.appendChild(actions);
+                    
+                    processSteps.appendChild(newStep);
+                    updateStepButtons();
+                }
+            });
+
+            // 初始化报价单选择功能
+            const searchInput = document.getElementById('quotation-search');
+            const dropdown = document.getElementById('quotation-dropdown');
+            const selectedTags = document.getElementById('selected-tags');
+            const checkboxes = document.querySelectorAll('#quotation-dropdown input[type="checkbox"]');
+            const confirmButton = document.getElementById('confirm-selection');
+            
+            // 点击搜索框显示下拉框
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.style.display = 'block';
+            });
+            
+            // 点击其他地方隐藏下拉框
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // 搜索功能
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const options = dropdown.querySelectorAll('.px-4');
+                
+                if (searchTerm === '') {
+                    options.forEach(option => {
+                        option.style.display = '';
+                    });
+                } else {
+                    options.forEach(option => {
+                        const text = option.textContent.toLowerCase();
+                        option.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                }
+            });
+            
+            // 确认选择
+            confirmButton.addEventListener('click', function() {
+                updateSelectedTags();
+                dropdown.style.display = 'none';
+            });
+            
+            // 更新已选标签
+            function updateSelectedTags() {
+                selectedTags.innerHTML = '';
+                const selectedOptions = Array.from(checkboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => ({
+                        value: checkbox.value,
+                        text: checkbox.nextElementSibling.textContent
+                    }));
+                
+                selectedOptions.forEach(option => {
+                    const tag = document.createElement('div');
+                    tag.className = 'quotation-tag';
+                    tag.innerHTML = `
+                        <span>${option.text}</span>
+                        <button onclick="removeTag('${option.value}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    selectedTags.appendChild(tag);
+                });
+            }
+        });
+
+        // 重置流程
+        function resetProcess() {
+            const processSteps = document.getElementById('processSteps');
+            const emptyHint = document.getElementById('emptyHint');
+            
+            processSteps.innerHTML = '';
+            emptyHint.style.display = 'block';
+        }
+
+        // 删除步骤
+        function deleteStep(button) {
+            const step = button.closest('.process-step');
+            step.remove();
+            
+            const processSteps = document.getElementById('processSteps');
+            const emptyHint = document.getElementById('emptyHint');
+            
+            if (processSteps.children.length === 0) {
+                emptyHint.style.display = 'block';
+            } else {
+                updateStepButtons();
+            }
+        }
+
+        // 移动步骤
+        function moveStep(button, direction) {
+            const step = button.closest('.process-step');
+            const processSteps = document.getElementById('processSteps');
+            
+            if (direction === 'up' && step.previousElementSibling) {
+                processSteps.insertBefore(step, step.previousElementSibling);
+            } else if (direction === 'down' && step.nextElementSibling) {
+                processSteps.insertBefore(step.nextElementSibling, step);
+            }
+            
+            updateStepButtons();
+        }
+
+        // 更新步骤按钮状态
+        function updateStepButtons() {
+            const steps = document.querySelectorAll('.process-step');
+            steps.forEach((step, index) => {
+                const upButton = step.querySelector('button:nth-child(1)');
+                const downButton = step.querySelector('button:nth-child(2)');
+                
+                upButton.style.display = index === 0 ? 'none' : '';
+                downButton.style.display = index === steps.length - 1 ? 'none' : '';
+            });
+        }
+
+        // 保存流程
+        function saveProcess() {
+            const processSteps = document.getElementById('processSteps');
+            const steps = Array.from(processSteps.children).map(step => ({
+                stepId: step.dataset.stepId
+            }));
+
+            // 这里添加保存流程的逻辑
+            console.log('保存流程:', steps);
+            alert('流程保存成功！');
+            
+            // 保存成功后跳转到settlement-list.html
+            window.location.href = 'settlement-list.html';
+        }
+
+        // 移除标签
+        function removeTag(value) {
+            const checkbox = document.querySelector(`#quotation-dropdown input[value="${value}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+                updateSelectedTags();
+            }
+        }
+    </script>
+</body>
+</html> 

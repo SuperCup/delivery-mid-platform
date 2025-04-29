@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>环节库 - 结算管理追踪系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .process-card {
+            transition: all 0.2s ease;
+        }
+        .process-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 左侧菜单栏 -->
+    <div class="fixed left-0 top-0 w-[254px] h-[1080px] bg-white border-r border-gray-200 overflow-y-auto">
+        <!-- 菜单列表 -->
+        <nav class="mt-4">
+            <a href="data-files.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-database w-5"></i>
+                <span class="ml-3">数据文件</span>
+            </a>
+            <a href="documents.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-file-alt w-5"></i>
+                <span class="ml-3">文件文档</span>
+            </a>
+            <a href="account.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-user-cog w-5"></i>
+                <span class="ml-3">账号管理</span>
+            </a>
+            <a href="ai-knowledge.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-brain w-5"></i>
+                <span class="ml-3">AI知识库</span>
+            </a>
+            <a href="settlement-list.html" class="flex items-center h-[60px] px-6 bg-[#D7E5FF] text-[#005EFF]">
+                <i class="fas fa-tasks w-5"></i>
+                <span class="ml-3">结算跟进</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="ml-[254px]">
+        <!-- 导航栏 -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <a href="settlement-list.html" class="text-blue-600 hover:text-blue-700">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                            <span class="ml-4 text-xl font-semibold text-gray-800">环节库</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="process-config.html" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                            <i class="fas fa-plus mr-2"></i>
+                            新建环节
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 内容区域 -->
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- 搜索和筛选 -->
+            <div class="bg-white shadow rounded-lg p-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- 搜索框 -->
+                    <div class="col-span-1 md:col-span-2">
+                        <div class="relative">
+                            <input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="搜索环节名称或负责人">
+                            <div class="absolute left-3 top-2.5 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 品牌筛选 -->
+                    <div>
+                        <select class="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">所有品牌</option>
+                            <option value="brand1">品牌A</option>
+                            <option value="brand2">品牌B</option>
+                            <option value="brand3">品牌C</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 环节列表 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 环节1 -->
+                <div class="process-card bg-white shadow rounded-lg overflow-hidden">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-medium text-gray-900">发票审核</h3>
+                            <button class="text-green-600 hover:text-green-700" title="复制环节">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-user mr-2"></i>
+                                <span>负责人：张三</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>预计周期：3天</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-building mr-2"></i>
+                                <span>适用品牌：品牌A、品牌B</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 环节2 -->
+                <div class="process-card bg-white shadow rounded-lg overflow-hidden">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-medium text-gray-900">合同确认</h3>
+                            <button class="text-green-600 hover:text-green-700" title="复制环节">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-user mr-2"></i>
+                                <span>负责人：李四</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>预计周期：2天</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-building mr-2"></i>
+                                <span>适用品牌：品牌A、品牌C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 环节3 -->
+                <div class="process-card bg-white shadow rounded-lg overflow-hidden">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-medium text-gray-900">签字盖章</h3>
+                            <button class="text-green-600 hover:text-green-700" title="复制环节">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-user mr-2"></i>
+                                <span>负责人：王五</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span>预计周期：1天</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-building mr-2"></i>
+                                <span>适用品牌：所有品牌</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 搜索功能
+            const searchInput = document.querySelector('input[type="text"]');
+            searchInput.addEventListener('input', function(e) {
+                // 这里添加搜索逻辑
+                console.log('搜索:', e.target.value);
+            });
+
+            // 筛选功能
+            const filters = document.querySelectorAll('select');
+            filters.forEach(filter => {
+                filter.addEventListener('change', function(e) {
+                    // 这里添加筛选逻辑
+                    console.log('筛选:', e.target.value);
+                });
+            });
+
+            // 复制环节按钮
+            const copyButtons = document.querySelectorAll('button[title="复制环节"]');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const processCard = this.closest('.process-card');
+                    const processName = processCard.querySelector('h3').textContent;
+                    console.log('复制环节:', processName);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

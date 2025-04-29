@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结算项目列表 - 结算管理追踪系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .table-row {
+            transition: all 0.2s ease;
+        }
+        .table-row:hover {
+            background-color: #f9fafb;
+        }
+        .stat-card {
+            transition: all 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        body {
+            min-width: 1920px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <div class="w-[1920px] h-[80px] bg-white border-b border-gray-200 fixed top-0 left-0 z-50">
+        <div class="h-full px-6 flex items-center justify-between">
+            <span class="text-[#FF673C] text-xl font-bold">业务中台</span>
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-gray-500"></i>
+                </div>
+                <span class="text-gray-600">管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 左侧菜单栏 -->
+    <div class="fixed left-0 top-[80px] w-[254px] h-[calc(100vh-80px)] bg-white border-r border-gray-200 overflow-y-auto">
+        <!-- 菜单列表 -->
+        <nav class="mt-4">
+            <a href="data-files.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-database w-5"></i>
+                <span class="ml-3">数据文件</span>
+            </a>
+            <a href="documents.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-file-alt w-5"></i>
+                <span class="ml-3">文件文档</span>
+            </a>
+            <a href="account.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-user-cog w-5"></i>
+                <span class="ml-3">账号管理</span>
+            </a>
+            <a href="ai-knowledge.html" class="flex items-center h-[60px] px-6 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                <i class="fas fa-brain w-5"></i>
+                <span class="ml-3">AI知识库</span>
+            </a>
+            <div class="space-y-1">
+                <div class="flex items-center h-[60px] px-6 bg-[#D7E5FF] text-[#005EFF]">
+                    <i class="fas fa-tasks w-5"></i>
+                    <span class="ml-3">结算跟进</span>
+                </div>
+                <div class="space-y-1">
+                    <a href="settlement-step.html" class="flex items-center h-[60px] px-6 pl-8 text-gray-600 hover:bg-[#D7E5FF] hover:text-[#005EFF]">
+                        <i class="fas fa-plus w-5"></i>
+                        <span class="ml-3">新建环节</span>
+                    </a>
+                    <a href="settlement-list.html" class="flex items-center h-[60px] px-6 pl-8 bg-[#D7E5FF] text-[#005EFF]">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span class="ml-3">结算进度</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 客户选择区域 -->
+    <div class="fixed left-[254px] top-[80px] w-[354px] h-[calc(100vh-80px)] overflow-y-auto">
+        <div class="pt-6 px-[25px]">
+            <h1 class="text-xl font-bold text-gray-900 mb-6">结算跟进</h1>
+            <div class="flex items-center space-x-4 mb-4">
+                <!-- 搜索框 -->
+                <div class="relative flex-1">
+                    <input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="搜索客户">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <!-- 年份选择 -->
+                <select class="border border-gray-300 rounded-md text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>2024</option>
+                    <option>2025</option>
+                </select>
+            </div>
+            
+            <!-- 客户卡片列表 -->
+            <div class="space-y-3">
+                <!-- 客户1 -->
+                <div class="w-[304px] h-[64px] bg-white rounded-lg shadow hover:shadow-md cursor-pointer transition-all duration-200 p-4 flex items-center justify-between group hover:bg-[#D7E5FF]">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 font-medium">A</span>
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-sm font-medium text-gray-900 group-hover:text-[#005EFF]">阿里巴巴</div>
+                            <div class="text-xs text-gray-500">3个进行中的项目</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:text-[#005EFF]"></i>
+                </div>
+
+                <!-- 客户2 -->
+                <div class="w-[304px] h-[64px] bg-[#D7E5FF] rounded-lg shadow cursor-pointer transition-all duration-200 p-4 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 font-medium">T</span>
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-sm font-medium text-[#005EFF]">腾讯科技</div>
+                            <div class="text-xs text-gray-500">2个进行中的项目</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-[#005EFF]"></i>
+                </div>
+
+                <!-- 客户3 -->
+                <div class="w-[304px] h-[64px] bg-white rounded-lg shadow hover:shadow-md cursor-pointer transition-all duration-200 p-4 flex items-center justify-between group hover:bg-[#D7E5FF]">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 font-medium">B</span>
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-sm font-medium text-gray-900 group-hover:text-[#005EFF]">百度在线</div>
+                            <div class="text-xs text-gray-500">1个进行中的项目</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:text-[#005EFF]"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="ml-[608px] pt-[80px]">
+        <div class="p-6">
+            <!-- 白色背景容器 -->
+            <div class="w-[1292px] h-[912px] bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <!-- 标题 -->
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">结算项目列表</h2>
+                    
+                    <!-- 搜索和操作按钮区 -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-[300px]">
+                            <div class="relative">
+                                <input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="搜索项目编号或名称">
+                                <div class="absolute left-3 top-2.5 text-gray-400">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-sync-alt mr-1"></i>
+                                刷新
+                            </button>
+                            <button onclick="window.location.href='process-config.html'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                <i class="fas fa-plus mr-2"></i>
+                                新建项目
+                            </button>
+                            <button onclick="window.location.href='settlement-step.html'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                <i class="fas fa-tasks mr-2"></i>
+                                创建环节
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 数据统计卡片 -->
+                    <div class="grid grid-cols-4 gap-4 mb-4">
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-500">进行中</div>
+                                    <div class="text-2xl font-semibold text-gray-900" id="inProgressCount">1</div>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                    <i class="fas fa-spinner text-blue-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-500">待处理</div>
+                                    <div class="text-2xl font-semibold text-gray-900" id="pendingCount">1</div>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center">
+                                    <i class="fas fa-clock text-yellow-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-500">已完成</div>
+                                    <div class="text-2xl font-semibold text-gray-900" id="completedCount">1</div>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                                    <i class="fas fa-check text-green-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-500">已延期</div>
+                                    <div class="text-2xl font-semibold text-gray-900" id="overdueCount">0</div>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 项目列表表格 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">项目信息</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">品牌</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">进度</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">预计完成时间</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前环节</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <!-- 项目1 -->
+                                    <tr class="table-row cursor-pointer" onclick="window.location.href='task-tracking.html?project=SG-222294'">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">SG-222294</div>
+                                            <div class="text-sm text-gray-500">到家项目</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">品牌A</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">进行中</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 60%"></div>
+                                                </div>
+                                                <span class="text-sm text-gray-500">3/5</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-03-20</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">发票审核</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button onclick="event.stopPropagation(); copyProcess('SG-222294')" class="text-blue-600 hover:text-blue-700" title="复制流程">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- 项目2 -->
+                                    <tr class="table-row cursor-pointer" onclick="window.location.href='task-tracking.html?project=SG-222295'">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">SG-222295</div>
+                                            <div class="text-sm text-gray-500">外卖项目</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">品牌B</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">待处理</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+                                                </div>
+                                                <span class="text-sm text-gray-500">0/4</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-03-25</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">合同确认</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button onclick="event.stopPropagation(); copyProcess('SG-222295')" class="text-blue-600 hover:text-blue-700" title="复制流程">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- 项目3 -->
+                                    <tr class="table-row cursor-pointer" onclick="window.location.href='task-tracking.html?project=SG-222296'">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">SG-222296</div>
+                                            <div class="text-sm text-gray-500">商超项目</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">品牌C</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">已完成</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 100%"></div>
+                                                </div>
+                                                <span class="text-sm text-gray-500">4/4</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-03-15</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">签字盖章</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button onclick="event.stopPropagation(); copyProcess('SG-222296')" class="text-blue-600 hover:text-blue-700" title="复制流程">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- 项目4（已延期） -->
+                                    <tr class="table-row cursor-pointer" onclick="window.location.href='task-tracking.html?project=SG-222297'">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">SG-222297</div>
+                                            <div class="text-sm text-gray-500">便利店项目</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">品牌D</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">已延期</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                                    <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 50%"></div>
+                                                </div>
+                                                <span class="text-sm text-gray-500">2/4</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-03-10</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">发票审核</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button onclick="event.stopPropagation(); copyProcess('SG-222297')" class="text-blue-600 hover:text-blue-700" title="复制流程">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 分页控件 -->
+                        <div class="px-4 py-3 flex items-center justify-between border-t border-gray-200">
+                            <div class="flex-1 flex justify-between items-center">
+                                <div class="text-sm text-gray-700">
+                                    共 <span class="font-medium">7</span> 条
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="px-2 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50" disabled>
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <span class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">1</span>
+                                    <button class="px-2 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 搜索功能
+            const searchInput = document.querySelector('input[type="text"]');
+            searchInput.addEventListener('input', function(e) {
+                // 这里添加搜索逻辑
+                console.log('搜索:', e.target.value);
+            });
+
+            // 筛选功能
+            const filters = document.querySelectorAll('select');
+            filters.forEach(filter => {
+                filter.addEventListener('change', function(e) {
+                    // 这里添加筛选逻辑
+                    console.log('筛选:', e.target.value);
+                });
+            });
+
+            // 更新统计数据
+            updateStatistics();
+
+            // 客户卡片点击事件
+            const customerCards = document.querySelectorAll('.w-[304px]');
+            customerCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // 移除其他卡片的选中状态
+                    customerCards.forEach(c => {
+                        c.classList.remove('bg-[#D7E5FF]');
+                        c.querySelector('.text-sm').classList.remove('text-[#005EFF]');
+                        c.querySelector('.fa-chevron-right').classList.remove('text-[#005EFF]');
+                    });
+                    
+                    // 添加当前卡片的选中状态
+                    this.classList.add('bg-[#D7E5FF]');
+                    this.querySelector('.text-sm').classList.add('text-[#005EFF]');
+                    this.querySelector('.fa-chevron-right').classList.add('text-[#005EFF]');
+                    
+                    // 这里添加加载对应客户项目的逻辑
+                    const customerName = this.querySelector('.text-sm').textContent;
+                    console.log('选择客户:', customerName);
+                });
+            });
+        });
+
+        // 复制流程
+        function copyProcess(projectId) {
+            // 跳转到流程配置页面并带上源项目参数
+            window.location.href = `process-config.html?copyFrom=${projectId}`;
+        }
+
+        // 更新统计数据
+        function updateStatistics() {
+            // 这里应该是从后端获取数据
+            // 示例数据
+            const projects = [
+                { id: 'SG-222294', status: 'in_progress', expectedDate: '2024-03-20' },
+                { id: 'SG-222295', status: 'pending', expectedDate: '2024-03-25' },
+                { id: 'SG-222296', status: 'completed', expectedDate: '2024-03-15' },
+                { id: 'SG-222297', status: 'overdue', expectedDate: '2024-03-10' }
+            ];
+
+            // 统计各状态数量
+            const stats = {
+                inProgress: 0,
+                pending: 0,
+                completed: 0,
+                overdue: 0
+            };
+
+            const today = new Date();
+            
+            projects.forEach(project => {
+                if (project.status === 'in_progress') {
+                    stats.inProgress++;
+                    
+                    // 检查是否延期
+                    const expectedDate = new Date(project.expectedDate);
+                    if (today > expectedDate) {
+                        stats.overdue++;
+                    }
+                } else if (project.status === 'pending') {
+                    stats.pending++;
+                } else if (project.status === 'completed') {
+                    stats.completed++;
+                } else if (project.status === 'overdue') {
+                    stats.overdue++;
+                }
+            });
+
+            // 更新DOM
+            document.getElementById('inProgressCount').textContent = stats.inProgress;
+            document.getElementById('pendingCount').textContent = stats.pending;
+            document.getElementById('completedCount').textContent = stats.completed;
+            document.getElementById('overdueCount').textContent = stats.overdue;
+        }
+    </script>
+</body>
+</html> 

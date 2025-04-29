@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结算管理追踪系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
+                        <span class="ml-2 text-xl font-semibold text-gray-800">结算管理系统</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-gray-600">欢迎, 管理员</span>
+                        <button class="ml-4 px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                            <i class="fas fa-sign-out-alt"></i> 退出
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- 功能卡片区域 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 结算环节管理卡片 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                            <i class="fas fa-tasks text-white text-xl"></i>
+                        </div>
+                        <div class="ml-5">
+                            <h3 class="text-lg font-medium text-gray-900">结算环节管理</h3>
+                            <p class="text-sm text-gray-500">创建和管理结算环节</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="w-full bg-blue-50 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-100">
+                            进入管理
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 流程配置卡片 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                            <i class="fas fa-project-diagram text-white text-xl"></i>
+                        </div>
+                        <div class="ml-5">
+                            <h3 class="text-lg font-medium text-gray-900">流程配置</h3>
+                            <p class="text-sm text-gray-500">配置结算追踪流程</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="w-full bg-green-50 text-green-600 px-4 py-2 rounded-md hover:bg-green-100">
+                            进入配置
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务追踪卡片 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                            <i class="fas fa-clipboard-list text-white text-xl"></i>
+                        </div>
+                        <div class="ml-5">
+                            <h3 class="text-lg font-medium text-gray-900">任务追踪</h3>
+                            <p class="text-sm text-gray-500">查看任务进度和状态</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="w-full bg-purple-50 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-100">
+                            查看任务
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
