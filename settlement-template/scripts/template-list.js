@@ -2,8 +2,8 @@
 let currentProcessType = 'material';
 let processData = {
     material: [],
-    confirmation: [],
-    pms: [],
+    delivery: [],
+    acceptance: [],
     customer: [],
     stamp: []
 };
@@ -116,7 +116,7 @@ const sampleTemplates = [
       { id: 2, name: '合同', type: 'material' },
       { id: 3, name: '核销明细', type: 'material' },
       { id: 4, name: '资源位截图', type: 'material' },
-      { id: 5, name: '总部确认邮件', type: 'confirmation' },
+      { id: 5, name: '总部确认邮件', type: 'delivery' },
       { id: 6, name: 'TM上传资料', type: 'customer' }
     ]
   },
@@ -128,7 +128,7 @@ const sampleTemplates = [
       { id: 2, name: '合同', type: 'material' },
       { id: 3, name: '核销明细', type: 'material' },
       { id: 4, name: '资源位截图', type: 'material' },
-      { id: 5, name: '总部确认邮件', type: 'confirmation' },
+      { id: 5, name: '总部确认邮件', type: 'delivery' },
       { id: 6, name: 'TM上传资料', type: 'customer' }
     ]
   },
@@ -140,7 +140,7 @@ const sampleTemplates = [
       { id: 2, name: '合同', type: 'material' },
       { id: 3, name: '核销明细', type: 'material' },
       { id: 4, name: '资源位截图', type: 'material' },
-      { id: 5, name: '总部确认邮件', type: 'confirmation' },
+      { id: 5, name: '总部确认邮件', type: 'delivery' },
       { id: 6, name: 'TM上传资料', type: 'customer' }
     ]
   },
@@ -152,7 +152,7 @@ const sampleTemplates = [
       { id: 2, name: '合同', type: 'material' },
       { id: 3, name: '核销明细', type: 'material' },
       { id: 4, name: '资源位截图', type: 'material' },
-      { id: 5, name: '总部确认邮件', type: 'confirmation' },
+      { id: 5, name: '总部确认邮件', type: 'delivery' },
       { id: 6, name: 'TM上传资料', type: 'customer' }
     ]
   },
@@ -164,7 +164,7 @@ const sampleTemplates = [
       { id: 2, name: '合同', type: 'material' },
       { id: 3, name: '核销明细', type: 'material' },
       { id: 4, name: '资源位截图', type: 'material' },
-      { id: 5, name: '总部确认邮件', type: 'confirmation' },
+      { id: 5, name: '总部确认邮件', type: 'delivery' },
       { id: 6, name: 'TM上传资料', type: 'customer' }
     ]
   }
@@ -173,7 +173,8 @@ const sampleTemplates = [
 // 3. 环节管理类型只保留三种
 const processTypes = [
   { type: 'material', name: '资料准备' },
-  { type: 'confirmation', name: '结算确认' },
+  { type: 'delivery', name: '结算交付确认' },
+  { type: 'acceptance', name: '结算验收确认' },
   { type: 'customer', name: '客户系统结算' }
 ];
 
@@ -376,7 +377,7 @@ function loadMaterialList() {
             id: 14, 
             name: '总部Owen结算确认邮件', 
             acquisitionMethod: '邮件确认', 
-            example: 'owen_confirmation.pdf',
+            example: 'owen_delivery.pdf',
             updateTime: '2024-03-20 14:30'
         },
         { 
@@ -500,7 +501,8 @@ function loadTemplates() {
             settlementSubjects: ['广告费', '服务费'],
             processes: [
                 { type: 'material', name: '资料准备' },
-                { type: 'confirmation', name: '结算确认' },
+                { type: 'delivery', name: '结算交付确认' },
+                { type: 'acceptance', name: '结算验收确认' },
                 { type: 'customer', name: '客户系统结算' }
             ],
             updateTime: '2024-03-20 14:30:00'
@@ -514,7 +516,8 @@ function loadTemplates() {
             settlementSubjects: ['广告费', '服务费'],
             processes: [
                 { type: 'material', name: '资料准备' },
-                { type: 'confirmation', name: '结算确认' }
+                { type: 'delivery', name: '结算交付确认' },
+                { type: 'acceptance', name: '结算验收确认' }
             ],
             updateTime: '2024-03-19 10:15:00'
         },
@@ -530,7 +533,7 @@ function loadTemplates() {
                 { type: 'material', name: '合同' },
                 { type: 'material', name: '核销明细' },
                 { type: 'material', name: '资源位截图' },
-                { type: 'confirmation', name: '总部确认邮件' },
+                { type: 'delivery', name: '总部确认邮件' },
                 { type: 'customer', name: 'TM上传资料' }
             ],
             updateTime: '2024-03-21 09:00:00'
@@ -547,7 +550,7 @@ function loadTemplates() {
                 { type: 'material', name: '合同' },
                 { type: 'material', name: '核销明细' },
                 { type: 'material', name: '资源位截图' },
-                { type: 'confirmation', name: '总部确认邮件' },
+                { type: 'delivery', name: '总部确认邮件' },
                 { type: 'customer', name: 'TM上传资料' }
             ],
             updateTime: '2024-03-21 10:00:00'
@@ -564,7 +567,7 @@ function loadTemplates() {
                 { type: 'material', name: '合同' },
                 { type: 'material', name: '核销明细' },
                 { type: 'material', name: '资源位截图' },
-                { type: 'confirmation', name: '总部确认邮件' },
+                { type: 'delivery', name: '总部确认邮件' },
                 { type: 'customer', name: 'TM上传资料' }
             ],
             updateTime: '2024-03-21 11:00:00'
@@ -650,9 +653,9 @@ function loadTemplates() {
 function getProcessTypeClass(type) {
     const classes = {
         material: 'bg-blue-100 text-blue-800 border border-blue-200',
-        confirmation: 'bg-green-100 text-green-800 border border-green-200',
-        customer: 'bg-purple-100 text-purple-800 border border-purple-200',
-        pms: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+        delivery: 'bg-green-100 text-green-800 border border-green-200',
+        acceptance: 'bg-purple-100 text-purple-800 border border-purple-200',
+        customer: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
         stamp: 'bg-red-100 text-red-800 border border-red-200'
     };
     return classes[type] || 'bg-gray-100 text-gray-800 border border-gray-200';
@@ -662,9 +665,9 @@ function getProcessTypeClass(type) {
 function getProcessTypeName(type) {
     const names = {
         material: '资料准备',
-        confirmation: '结算确认',
+        delivery: '结算交付确认',
+        acceptance: '结算验收确认',
         customer: '客户系统结算',
-        pms: '精明购内部结算',
         stamp: '扫描件盖章'
     };
     return names[type] || '未知类型';
@@ -733,7 +736,7 @@ function showProcessPreview(process) {
                 </div>
             `;
             break;
-        case 'confirmation':
+        case 'delivery':
             previewContent = `
                 <div class="mb-4">
                     <h4 class="font-bold text-gray-900">${process.name}</h4>
@@ -900,31 +903,31 @@ function loadProcessList(type) {
                 { name: '资源位截图' }
             ]
         },
-        // 结算确认环节样例
+        // 结算交付确认环节样例
         {
             id: 3,
-            type: 'confirmation',
+            type: 'delivery',
             name: '总部确认',
             description: '等待总部确认结算金额',
             follower: '王五',
             cycle: '5个工作日',
             confirmer: '总部财务部',
-            confirmationMethod: '邮件确认',
-            confirmationTemplate: {
+            deliveryMethod: '邮件确认',
+            deliveryTemplate: {
                 name: '总部确认模板.pdf',
-                url: 'confirmation_template.pdf',
+                url: 'delivery_template.pdf',
                 updateTime: '2024-03-20 15:00'
             }
         },
         {
             id: 4,
-            type: 'confirmation',
+            type: 'delivery',
             name: '客户确认',
             description: '等待客户确认结算金额',
             follower: '赵六',
             cycle: '7个工作日',
             confirmer: '客户财务部',
-            confirmationMethod: '邮件确认'
+            deliveryMethod: '邮件确认'
         },
         // 客户系统结算环节样例
         {
@@ -963,7 +966,7 @@ function createProcessCard(process) {
     }
 
     const typeClass = process.type === 'material' ? 'process-type-material' : 
-                     process.type === 'confirmation' ? 'process-type-confirmation' : 
+                     process.type === 'delivery' ? 'process-type-delivery' : 
                      'process-type-customer';
 
     return `
@@ -993,19 +996,19 @@ function createProcessCard(process) {
                         </div>
                     </div>
                 ` : ''}
-                ${process.type === 'confirmation' ? `
+                ${process.type === 'delivery' ? `
                     <div class="info-item">
                         <span class="info-label">确认方：</span>
                         <span class="info-value">${process.confirmer || '未指定'}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">确认方式：</span>
-                        <span class="info-value">${process.confirmationMethod || '未指定'}</span>
+                        <span class="info-value">${process.deliveryMethod || '未指定'}</span>
                     </div>
                     <div class="materials-list">
                         <span class="info-label">确认模板：</span>
                         <div class="material-item">
-                            <span class="material-name">${process.confirmationTemplate ? process.confirmationTemplate.name : '无'}</span>
+                            <span class="material-name">${process.deliveryTemplate ? process.deliveryTemplate.name : '无'}</span>
                             <button class="action-button preview-btn" onclick="previewMaterialDetail(${JSON.stringify(process.material)}, 'material')">预览</button>
                         </div>
                     </div>
@@ -1038,8 +1041,10 @@ function getProcessTypeName(type) {
     switch (type) {
         case 'material':
             return '资料准备';
-        case 'confirmation':
-            return '结算确认';
+        case 'delivery':
+            return '结算交付确认';
+        case 'acceptance':
+            return '结算验收确认';
         case 'customer':
             return '客户系统结算';
         default:
@@ -1110,7 +1115,7 @@ function showProcessPreview(process) {
                 </div>
             `;
             break;
-        case 'confirmation':
+        case 'delivery':
             previewContent = `
                 <div class="mb-4">
                     <h4 class="font-bold text-gray-900">${process.name}</h4>
@@ -1222,15 +1227,15 @@ function renderProcessList(type) {
                     </div>
                 `;
                 break;
-            case 'confirmation':
+            case 'delivery':
                 placeholderContent = `
                     <div class="empty-placeholder">
                         <div class="placeholder-icon">
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="placeholder-text">
-                            <p>暂无结算确认环节</p>
-                            <p class="text-gray-500">点击\"添加环节\"按钮创建新的结算确认环节</p>
+                            <p>暂无结算交付确认环节</p>
+                            <p class="text-gray-500">点击\"添加环节\"按钮创建新的结算交付确认环节</p>
                         </div>
                     </div>
                 `;
@@ -1284,8 +1289,8 @@ function editProcess(type, id) {
     const form = document.getElementById('addProcessForm');
     
     // 填充基本信息
-    const nameInput = form.querySelector('[name="processName"], [name="confirmationName"], [name="pmsTitle"], [name="customerTitle"], [name="stampTitle"]');
-    const descInput = form.querySelector('[name="processDescription"], [name="confirmationDescription"]');
+    const nameInput = form.querySelector('[name="processName"], [name="deliveryName"], [name="pmsTitle"], [name="customerTitle"], [name="stampTitle"]');
+    const descInput = form.querySelector('[name="processDescription"], [name="deliveryDescription"]');
     
     if (nameInput) nameInput.value = process.name;
     if (descInput) descInput.value = process.description || '';
@@ -1306,12 +1311,12 @@ function editProcess(type, id) {
                 }
             });
             break;
-        case 'confirmation':
+        case 'delivery':
             // 设置触发类型
             form.querySelector(`input[name="triggerType"][value="${process.triggerType}"]`).checked = true;
             // 设置确认方式
-            process.confirmationTypes.forEach(method => {
-                form.querySelector(`input[name="confirmationType"][value="${method}"]`).checked = true;
+            process.deliveryTypes.forEach(method => {
+                form.querySelector(`input[name="deliveryType"][value="${method}"]`).checked = true;
             });
             // 设置依赖项
             process.dependencies.forEach(depId => {
@@ -1338,7 +1343,7 @@ function deleteProcess(type, id) {
     if (confirm('确定要删除这个环节吗？此操作不可恢复。')) {
         // 检查是否有其他环节依赖此环节
         if (type === 'material') {
-            const dependentProcesses = processData.confirmation.filter(p => 
+            const dependentProcesses = processData.delivery.filter(p => 
                 p.dependencies && p.dependencies.includes(id)
             );
             
@@ -1979,16 +1984,16 @@ function showAttachmentDrawer(processId, type) {
     const allProcesses = [
         {
             id: 3,
-            type: 'confirmation',
+            type: 'delivery',
             name: '总部确认',
             description: '等待总部确认结算金额',
             follower: '王五',
             cycle: '5个工作日',
             confirmer: '总部财务部',
-            confirmationMethod: '邮件确认',
-            confirmationTemplate: {
+            deliveryMethod: '邮件确认',
+            deliveryTemplate: {
                 name: '总部确认模板.pdf',
-                url: 'confirmation_template.pdf',
+                url: 'delivery_template.pdf',
                 updateTime: '2024-03-20 15:00'
             }
         },
@@ -2011,8 +2016,8 @@ function showAttachmentDrawer(processId, type) {
     const process = allProcesses.find(p => p.id === processId);
     let file = null;
     let title = '';
-    if (type === 'confirmation' && process && process.confirmationTemplate) {
-        file = process.confirmationTemplate;
+    if (type === 'delivery' && process && process.deliveryTemplate) {
+        file = process.deliveryTemplate;
         title = '确认模板预览';
     } else if (type === 'customer' && process && process.instructionFile) {
         file = process.instructionFile;
@@ -2045,7 +2050,7 @@ function previewMaterialDetail(obj, type) {
                 <div class="mb-2"><span class="font-semibold">样例：</span>${obj.example ? `<a href="#" onclick=\"previewMaterial('${obj.example}')\" class='text-blue-600 underline'>${obj.example}</a>` : '无'}</div>
             </div>
         `;
-    } else if (type === 'confirmation' || type === 'customer') {
+    } else if (type === 'delivery' || type === 'customer') {
         html = `
             <div class="mb-4">
                 <div class="font-bold text-lg mb-2">${obj.name}</div>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMS内部结算单管理</title>
+    <link href="../styles/task-tracking.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 顶部操作区 -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">PMS内部结算单管理</h1>
+            <div class="flex space-x-2">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center" onclick="alert('从PMS同步结算单功能待实现')"><i class="fas fa-sync-alt mr-2"></i>从PMS同步结算单</button>
+                <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center" onclick="filterTable()"><i class="fas fa-redo mr-2"></i>刷新</button>
+            </div>
+        </div>
+        <!-- 顶部任务跟进标签栏 -->
+        <div class="flex flex-wrap items-center space-x-2 mb-4">
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="全部" onclick="toggleStatusTab(this)">全部</button>
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="待接收" onclick="toggleStatusTab(this)">待接收</button>
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="已拒绝" onclick="toggleStatusTab(this)">已拒绝</button>
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="跟进中" onclick="toggleStatusTab(this)">跟进中</button>
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="待交付" onclick="toggleStatusTab(this)">待交付</button>
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="待验收" onclick="toggleStatusTab(this)">待验收</button>
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="已暂停" onclick="toggleStatusTab(this)">已暂停</button>
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="已完成" onclick="toggleStatusTab(this)">已完成</button>
+            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="已关闭" onclick="toggleStatusTab(this)">已关闭</button>
+        </div>
+        <!-- 搜索栏保留 -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-4 flex flex-wrap items-center space-x-4">
+            <input type="text" id="searchInput" placeholder="搜索结算编号/名称/项目" class="px-3 py-2 border rounded-md w-64 mb-2">
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mb-2" onclick="filterTable()"><i class="fas fa-search mr-1"></i>查询</button>
+        </div>
+        <!-- 主表格 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sticky left-0 z-10 bg-white">结算编号</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">结算名称</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">项目</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">产品</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">任务跟进</th>
+                            <th class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">收入金额(含税)</th>
+                            <th class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">客户已确认金额(含税)</th>
+                            <th class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">客户未确认金额(含税)</th>
+                            <th class="px-4 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">外部结算流程数</th>
+                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sticky right-0 z-20 bg-white">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="internalSettlementList">
+                        <!-- 数据由JS动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- 1. 拒绝弹窗 -->
+    <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
+            <button onclick="closeRejectModal()" class="absolute top-3 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
+            <h2 class="text-lg font-bold mb-4">填写拒绝理由</h2>
+            <textarea id="rejectReasonInput" class="w-full border rounded p-2 mb-4" rows="4" placeholder="请输入拒绝理由"></textarea>
+            <div class="flex justify-end">
+                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded mr-2" onclick="closeRejectModal()">取消</button>
+                <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="submitRejectReason()">提交</button>
+            </div>
+        </div>
+    </div>
+    <!-- 2. 查看拒绝理由弹窗 -->
+    <div id="viewRejectModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
+            <button onclick="closeViewRejectModal()" class="absolute top-3 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
+            <h2 class="text-lg font-bold mb-4">拒绝理由</h2>
+            <div id="rejectReasonText" class="text-gray-700 mb-4"></div>
+            <div class="flex justify-end">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="closeViewRejectModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    <!-- 5. 分配子任务弹窗 -->
+    <div id="assignModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative">
+            <button onclick="closeAssignModal()" class="absolute top-3 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
+            <h2 class="text-lg font-bold mb-4">分配子任务</h2>
+            <div id="assignSubtaskList" class="mb-4"></div>
+            <div class="flex justify-end">
+                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded mr-2" onclick="closeAssignModal()">取消</button>
+                <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="submitAssign()">提交</button>
+            </div>
+        </div>
+    </div>
+    <!-- 结算详情弹窗 -->
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-8 relative">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
+            <h2 class="text-xl font-bold mb-4">结算单详情</h2>
+            <div id="modalContent">
+                <!-- 详情内容由JS填充 -->
+            </div>
+        </div>
+    </div>
+    <!-- 已暂停、已关闭理由弹窗 -->
+    <div id="reasonModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
+            <button onclick="closeReasonModal()" class="absolute top-3 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
+            <h2 class="text-lg font-bold mb-4" id="reasonModalTitle">理由</h2>
+            <div id="reasonModalText" class="text-gray-700 mb-4"></div>
+            <div class="flex justify-end">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="closeReasonModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    <style>
+    .status-tab {
+        color: #374151;
+        background: transparent;
+        transition: all 0.15s;
+        border-bottom: 2px solid transparent;
+    }
+    .status-tab.selected {
+        color: #2563eb;
+        border-bottom: 2px solid #2563eb;
+    }
+    .status-tab[data-value="全部"].selected {
+        color: #1e40af;
+        border-bottom: 2px solid #1e40af;
+    }
+    </style>
+    <script>
+    // 示例数据
+    const data = [
+      {
+        id: 'BS-25028456',
+        name: '	1664-美团11月精准营销活动结算单',
+        project: '2024年框嘉士伯美团RTB',
+        product: '到家数字化营销>美团广告',
+        status: '待接收',
+        income: '61,800.01',
+        confirmed: '60,000.00',
+        unconfirmed: '1,800.01',
+        process: { total: 3, done: 2, undone: 1, abnormal: 0 },
+        details: {
+          flows: [
+            { name: '外部结算单1', status: '已完成', amount: '30,000.00' },
+            { name: '外部结算单2', status: '已完成', amount: '20,000.00' },
+            { name: '外部结算单3', status: '未完成', amount: '11,800.01' }
+          ],
+          files: [
+            { name: '合同.pdf', url: '#' },
+            { name: '报价单.xlsx', url: '#' }
+          ]
+        }
+      },
+      {
+        id: 'BS-25028457',
+        name: '乌苏-美团11月精准营销活动结算单',
+        project: '2024年框嘉士伯美团RTB放',
+        product: '到家数字化营销>美团广告',
+        status: '跟进中',
+        income: '88,000.00',
+        confirmed: '80,000.00',
+        unconfirmed: '8,000.00',
+        process: { total: 2, done: 1, undone: 1, abnormal: 0 },
+        details: {
+          flows: [
+            { name: '外部结算单A', status: '已完成', amount: '50,000.00' },
+            { name: '外部结算单B', status: '未完成', amount: '38,000.00' }
+          ],
+          files: [
+            { name: '广告明细.pdf', url: '#' }
+          ]
+        }
+      },
+      {
+        id: 'BS-25028458',
+        name: '嘉士伯&京东到家25年2月活动核销',
+        project: '2025年嘉士伯2月到家活动',
+        product: '到家数字化营销>京东到家',
+        status: '待交付',
+        income: '120,000.00',
+        confirmed: '100,000.00',
+        unconfirmed: '20,000.00',
+        process: { total: 4, done: 3, undone: 1, abnormal: 0 },
+        details: {
+          flows: [
+            { name: '外部结算单A', status: '已完成', amount: '60,000.00' },
+            { name: '外部结算单B', status: '已完成', amount: '40,000.00' },
+            { name: '外部结算单C', status: '未完成', amount: '20,000.00' }
+          ],
+          files: [
+            { name: '服务合同.pdf', url: '#' }
+          ]
+        }
+      },
+      {
+        id: 'BS-25028459',
+        name: 'SG-250015嘉士伯饿了么2月核销结算单',
+        project: '2025年嘉士伯2月到家活动',
+        product: '到家数字化营销>饿了么',
+        status: '待验收',
+        income: '200,000.00',
+        confirmed: '180,000.00',
+        unconfirmed: '20,000.00',
+        process: { total: 5, done: 4, undone: 1, abnormal: 0 },
+        details: {
+          flows: [
+            { name: '外部结算单A', status: '已完成', amount: '100,000.00' },
+            { name: '外部结算单B', status: '已完成', amount: '80,000.00' },
+            { name: '外部结算单C', status: '未完成', amount: '20,000.00' }
+          ],
+          files: [
+            { name: '核销明细.pdf', url: '#' }
+          ]
+        }
+      },
+      {
+        id: 'BS-25028460',
+        name: 'SG-250015嘉士伯饿了么3月广告结算单1（2月项目打款结算至3月）',
+        project: '2025年嘉士伯2月到家活动',
+        product: '到家数字化营销>饿了么广告',
+        status: '已暂停',
+        income: '50,000.00',
+        confirmed: '30,000.00',
+        unconfirmed: '20,000.00',
+        process: { total: 1, done: 0, undone: 1, abnormal: 1 },
+        details: {
+          flows: [
+            { name: '外部结算单A', status: '异常', amount: '50,000.00' }
+          ],
+          files: [
+            { name: '暂停说明.pdf', url: '#' }
+          ]
+        }
+      },
+      {
+        id: 'BS-25028461',
+        name: '嘉士伯2月淘鲜达活动结算单',
+        project: '2025年嘉士伯2月到家活动',
+        product: '到家数字化营销>淘鲜达',
+        status: '已完成',
+        income: '300,000.00',
+        confirmed: '300,000.00',
+        unconfirmed: '0.00',
+        process: { total: 2, done: 2, undone: 0, abnormal: 0 },
+        details: {
+          flows: [
+            { name: '外部结算单A', status: '已完成', amount: '150,000.00' },
+            { name: '外部结算单B', status: '已完成', amount: '150,000.00' }
+          ],
+          files: [
+            { name: '结算报告.pdf', url: '#' }
+          ]
+        }
+      },
+      {
+        id: 'BS-25028462',
+        name: '嘉士伯饿了么1月核销结算单（拆分至2月部分）',
+        project: '2025年嘉士伯2月到家活动',
+        product: '到家数字化营销>饿了么',
+        status: '已关闭',
+        income: '0.00',
+        confirmed: '0.00',
+        unconfirmed: '0.00',
+        process: { total: 0, done: 0, undone: 0, abnormal: 0 },
+        details: {
+          flows: [],
+          files: []
+        }
+      },
+      {
+        id: 'BS-25028463',
+        name: '微信支付2025-04-10活动结算单',
+        project: '2025年嘉士伯2月到家活动',
+        product: '到店数字化营销>微信支付',
+        status: '已拒绝',
+        income: '0.00',
+        confirmed: '0.00',
+        unconfirmed: '0.00',
+        process: { total: 0, done: 0, undone: 0, abnormal: 0 },
+        details: { flows: [], files: [] }
+      }
+    ];
+
+    // 拒绝理由存储
+    let rejectReasons = {};
+
+    // 渲染表格
+    function renderTable(list) {
+      const tbody = document.getElementById('internalSettlementList');
+      tbody.innerHTML = '';
+      list.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-blue-50 transition';
+        tr.innerHTML = `
+          <td class=\"px-4 py-2 whitespace-nowrap text-blue-600 underline cursor-pointer hover:text-blue-800 sticky left-0 z-10 bg-white\" onclick=\"showDetail(${idx})\">${row.id}</td>
+          <td class=\"px-4 py-2 whitespace-nowrap\">${row.name}</td>
+          <td class=\"px-4 py-2 whitespace-nowrap\">${row.project}</td>
+          <td class=\"px-4 py-2 whitespace-nowrap\">${row.product || ''}</td>
+          <td class=\"px-4 py-2 whitespace-nowrap\">${getStatusTag(row.status)}</td>
+          <td class=\"px-4 py-2 whitespace-nowrap text-right\">${row.income}</td>
+          <td class=\"px-4 py-2 whitespace-nowrap text-right\">${row.confirmed}</td>
+          <td class=\"px-4 py-2 whitespace-nowrap text-right\">${row.unconfirmed}</td>
+          <td class=\"px-4 py-2 whitespace-nowrap text-center\">
+            <span class=\"inline-block bg-blue-100 text-blue-700 rounded px-2 py-1 text-xs font-semibold mr-1\">总:${row.process.total}</span>
+            <span class=\"inline-block bg-green-100 text-green-700 rounded px-2 py-1 text-xs font-semibold mr-1\">完成:${row.process.done}</span>
+            <span class=\"inline-block bg-yellow-100 text-yellow-700 rounded px-2 py-1 text-xs font-semibold mr-1\">未完成:${row.process.undone}</span>
+            <span class=\"inline-block bg-red-100 text-red-700 rounded px-2 py-1 text-xs font-semibold\">异常:${row.process.abnormal}</span>
+          </td>
+          <td class=\"px-4 py-2 whitespace-nowrap text-left sticky right-0 z-20 bg-white\">${getActionByStatus(row.status, idx)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 筛选功能
+    function filterTable() {
+      const keyword = document.getElementById('searchInput').value.trim();
+      const statusArr = getSelectedStatusFilters();
+      const filtered = data.filter(row => {
+        const matchKeyword = !keyword || row.id.includes(keyword) || row.name.includes(keyword) || row.project.includes(keyword);
+        const matchStatus = statusArr.includes(row.status);
+        return matchKeyword && matchStatus;
+      });
+      renderTable(filtered);
+    }
+
+    // 详情弹窗
+    function showDetail(idx) {
+      const row = data[idx];
+      const modal = document.getElementById('detailModal');
+      const content = document.getElementById('modalContent');
+      content.innerHTML = `
+        <div class='mb-4'>
+          <div class='font-semibold mb-2'>基础信息</div>
+          <div class='grid grid-cols-2 gap-4 text-sm'>
+            <div><span class='text-gray-500'>结算编号：</span>${row.id}</div>
+            <div><span class='text-gray-500'>结算名称：</span>${row.name}</div>
+            <div><span class='text-gray-500'>项目：</span>${row.project}</div>
+            <div><span class='text-gray-500'>产品：</span>${row.product || ''}</div>
+            <div><span class='text-gray-500'>任务跟进：</span>${getStatusTag(row.status)}</div>
+            <div><span class='text-gray-500'>收入金额：</span>${row.income}</div>
+            <div><span class='text-gray-500'>客户已确认金额：</span>${row.confirmed}</div>
+            <div><span class='text-gray-500'>客户未确认金额：</span>${row.unconfirmed}</div>
+          </div>
+        </div>
+      `;
+      modal.classList.remove('hidden');
+    }
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // 初始化
+    renderTable(data);
+
+    // 2. 渲染表格时插入新字段，动态生成操作内容
+    function getStatusTag(status) {
+      switch(status) {
+        case '待接收':
+          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700'>${status}</span>`;
+        case '跟进中':
+          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700'>${status}</span>`;
+        case '待交付':
+          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700'>${status}</span>`;
+        case '待验收':
+          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700'>${status}</span>`;
+        case '已暂停':
+          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-500'>${status}</span>`;
+        case '已完成':
+          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700'>${status}</span>`;
+        case '已关闭':
+          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700'>${status}</span>`;
+        default:
+          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-500'>${status}</span>`;
+      }
+    }
+    function getActionByStatus(status, idx) {
+      switch(status) {
+        case '待接收':
+          return `<button class='px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs mr-2' onclick='openAssignModal(${idx})'>接收</button><button class='px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs' onclick='openRejectModal(${idx})'>拒绝</button>`;
+        case '已拒绝':
+          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs mr-2' onclick='data[${idx}].status="跟进中";renderTable(data);'>启用</button><button class='px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs' onclick='openViewRejectModal(${idx})'>查看拒绝理由</button>`;
+        case '跟进中':
+          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs' onclick='window.location.href="task-management.html"'>进入任务</button>`;
+        case '待交付':
+          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs  mr-2' onclick='window.location.href="task-management.html"'>进入任务</button><button class='px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs mr-2' onclick='window.open("https://testop.ismartgo.cn/pms2/h5/project/main.html?projectid=7452&rdp-mnu=148000163980","_blank")'>PMS交付确认</button>`;
+        case '待验收':
+          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs  mr-2' onclick='window.location.href="task-management.html"'>进入任务</button><button class='px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs mr-2' onclick='window.open("https://testop.ismartgo.cn/pms2/h5/project/main.html?projectid=7452&rdp-mnu=148000163980","_blank")'>PMS验收确认</button>`;
+        case '已暂停':
+          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs mr-2' onclick='window.location.href="task-management.html"'>进入任务</button><button class='px-2 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 text-xs' onclick='openReasonModal("pause",${idx})'>查看暂停理由</button>`;
+        case '已关闭':
+          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs mr-2' onclick='window.location.href="task-management.html"'>进入任务</button><button class='px-2 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 text-xs' onclick='openReasonModal("close",${idx})'>查看关闭理由</button>`;
+        case '已完成':
+          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs' onclick='window.location.href="task-management.html"'>进入任务</button>`;
+        default:
+          return '';
+      }
+    }
+
+    // 拒绝理由弹窗
+    function openRejectModal(idx) {
+      document.getElementById('rejectModal').style.display = 'flex';
+      document.getElementById('rejectReasonInput').value = '';
+      document.getElementById('rejectModal').dataset.idx = idx;
+    }
+    function closeRejectModal() {
+      document.getElementById('rejectModal').style.display = 'none';
+    }
+    function submitRejectReason() {
+      const idx = document.getElementById('rejectModal').dataset.idx;
+      const reason = document.getElementById('rejectReasonInput').value.trim();
+      if (!reason) { alert('请填写拒绝理由'); return; }
+      rejectReasons[idx] = reason;
+      data[idx].status = '已拒绝';
+      closeRejectModal();
+      renderTable(data);
+    }
+    function openViewRejectModal(idx) {
+      document.getElementById('viewRejectModal').style.display = 'flex';
+      document.getElementById('rejectReasonText').innerText = rejectReasons[idx] || '无理由';
+    }
+    function closeViewRejectModal() {
+      document.getElementById('viewRejectModal').style.display = 'none';
+    }
+    // 分配子任务弹窗
+    function openAssignModal(idx) {
+      document.getElementById('assignModal').style.display = 'flex';
+      document.getElementById('assignModal').dataset.idx = idx;
+      assignSubtasks = [{templateId:'',amount:'',owner:''}];
+      renderAssignSubtasks();
+    }
+    function closeAssignModal() {
+      document.getElementById('assignModal').style.display = 'none';
+    }
+    function submitAssign() {
+      const idx = document.getElementById('assignModal').dataset.idx;
+      data[idx].status = '跟进中';
+      data[idx].subtasks = assignSubtasks;
+      closeAssignModal();
+      renderTable(data);
+    }
+    function renderAssignSubtasks() {
+      const container = document.getElementById('assignSubtaskList');
+      container.innerHTML = assignSubtasks.map((row, i) => `
+        <div class='flex items-center space-x-2 mb-2'>
+          <select class='border rounded px-2 py-1' style='min-width:120px' onchange='assignSubtasks[${i}].templateId=this.value'>
+            <option value=''>选择模板</option>
+            ${taskTemplates.map(t=>`<option value='${t.id}' ${row.templateId==t.id?'selected':''}>${t.name}</option>`).join('')}
+          </select>
+          <input type='number' class='border rounded px-2 py-1 w-24' placeholder='待确认金额' value='${row.amount}' onchange='assignSubtasks[${i}].amount=this.value'>
+          <input type='text' class='border rounded px-2 py-1 w-24' placeholder='负责人(选填)' value='${row.owner}' onchange='assignSubtasks[${i}].owner=this.value'>
+          <button class='px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs' onclick='removeAssignSubtask(${i})'>删除</button>
+        </div>
+      `).join('') + `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs' onclick='addAssignSubtask()'>添加子任务</button>`;
+    }
+    function addAssignSubtask() {
+      assignSubtasks.push({templateId:'',amount:'',owner:''});
+      renderAssignSubtasks();
+    }
+    function removeAssignSubtask(i) {
+      assignSubtasks.splice(i,1);
+      renderAssignSubtasks();
+    }
+
+    // 已暂停、已关闭理由弹窗
+    function openReasonModal(type, idx) {
+      document.getElementById('reasonModal').style.display = 'flex';
+      document.getElementById('reasonModalTitle').innerText = type === 'pause' ? '暂停理由' : '关闭理由';
+      document.getElementById('reasonModalText').innerText = data[idx][type + 'Reason'] || '无理由';
+    }
+    function closeReasonModal() {
+      document.getElementById('reasonModal').style.display = 'none';
+    }
+
+    // 接收弹窗子任务模板数据
+    const taskTemplates = [
+      { id: 1, name: '精明购标准模板' },
+      { id: 2, name: '服务费总部结算' },
+      { id: 3, name: '核销费区域结算' },
+      { id: 4, name: '湖南核销费结算' },
+      { id: 5, name: '华中核销费结算' },
+      { id: 6, name: 'RTB费用结算' }
+    ];
+    // 分配子任务弹窗支持添加多个子任务
+    let assignSubtasks = [];
+
+    // 顶部标签栏交互
+    let selectedStatusTab = '全部';
+    function toggleStatusTab(btn) {
+        const value = btn.getAttribute('data-value');
+        // 移除所有标签的选中状态
+        document.querySelectorAll('.status-tab').forEach(tab => tab.classList.remove('selected'));
+        // 设置当前标签为选中状态
+        btn.classList.add('selected');
+        selectedStatusTab = value;
+        filterTable();
+    }
+    // 初始化全部选中
+    window.addEventListener('DOMContentLoaded',()=>{
+        document.querySelector('.status-tab[data-value="全部"]').classList.add('selected');
+    });
+    function getSelectedStatusFilters() {
+        if (selectedStatusTab === '全部') {
+            return ['待接收','已拒绝','跟进中','待交付','待验收','已暂停','已完成','已关闭'];
+        }
+        return [selectedStatusTab];
+    }
+    </script>
+</body>
+</html> 

@@ -238,15 +238,28 @@ const mockTasks = [
     }
 ];
 
-// 页面加载完成后初始化
+// 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
+    // 获取URL参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const settlementNo = urlParams.get('settlementNo');
+    
+    // 如果URL中包含结算单编号，则填充到搜索框
+    if (settlementNo) {
+        document.getElementById('settlementNoFilter').value = settlementNo;
+        // 触发搜索
+        filterTasks();
+    }
+
+    // 为搜索框添加输入事件监听
+    document.getElementById('taskNameFilter').addEventListener('input', filterTasks);
+    document.getElementById('settlementNoFilter').addEventListener('input', filterTasks);
+    document.getElementById('relatedToMeFilter').addEventListener('change', filterTasks);
+
     // 加载任务列表
     loadTasks();
 
     // 绑定事件监听器
-    document.getElementById('taskNameFilter')?.addEventListener('input', filterTasks);
-    document.getElementById('relatedToMeFilter')?.addEventListener('change', filterTasks);
-    document.getElementById('refreshBtn')?.addEventListener('click', loadTasks);
     document.getElementById('createProjectBtn')?.addEventListener('click', function() {
         window.location.href = '../settlement-template/template-list.html';
     });
@@ -366,18 +379,25 @@ function renderTaskList(tasksToRender) {
     `).join('');
 }
 
-// 筛选任务
+// 过滤任务列表
 function filterTasks() {
-    const nameFilter = document.getElementById('taskNameFilter').value.toLowerCase();
+    const taskNameFilter = document.getElementById('taskNameFilter').value.toLowerCase();
+    const settlementNoFilter = document.getElementById('settlementNoFilter').value.toLowerCase();
     const relatedToMe = document.getElementById('relatedToMeFilter').checked;
-
-    const filteredTasks = tasks.filter(task => {
-        const nameMatch = task.name.toLowerCase().includes(nameFilter);
-        const relatedMatch = !relatedToMe || isTaskRelatedToMe(task);
-        return nameMatch && relatedMatch;
+    
+    const rows = document.querySelectorAll('#taskList tr');
+    
+    rows.forEach(row => {
+        const taskName = row.querySelector('td:nth-child(1)')?.textContent.toLowerCase() || '';
+        const settlementNo = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+        const isRelated = row.getAttribute('data-related') === 'true';
+        
+        const matchesTaskName = taskName.includes(taskNameFilter);
+        const matchesSettlementNo = settlementNo.includes(settlementNoFilter);
+        const matchesRelated = !relatedToMe || isRelated;
+        
+        row.style.display = matchesTaskName && matchesSettlementNo && matchesRelated ? '' : 'none';
     });
-
-    renderTaskList(filteredTasks);
 }
 
 // 判断任务是否与当前用户相关
