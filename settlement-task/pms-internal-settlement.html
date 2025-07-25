@@ -7,94 +7,256 @@
     <link href="../styles/task-tracking.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .btn-primary {
+            @apply px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2 transition-all duration-200 shadow-sm hover:shadow-md;
+        }
+        .btn-secondary {
+            @apply px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center space-x-2 transition-all duration-200;
+        }
+        .btn-outline {
+            @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center space-x-2 transition-all duration-200;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <!-- 顶部操作区 -->
+        <!-- 面包屑导航 -->
+        <nav class="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <a href="../index.html" class="hover:text-blue-600 transition-colors">
+                <i class="fas fa-home mr-1"></i>业务中台
+            </a>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+            <span class="text-gray-800 font-medium">PMS内部结算单管理</span>
+        </nav>
+        
+        <!-- 页面标题和操作区 -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">PMS内部结算单管理</h1>
-            <div class="flex space-x-2">
-                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center" onclick="alert('从PMS同步结算单功能待实现')"><i class="fas fa-sync-alt mr-2"></i>从PMS同步结算单</button>
-                <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center" onclick="filterTable()"><i class="fas fa-redo mr-2"></i>刷新</button>
+            <div class="flex items-center space-x-3">
+                <button class="btn-primary" onclick="showCreateExternalSettlementModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>创建外部结算单</span>
+                </button>
+                <button class="btn-secondary" onclick="window.location.href='../settlement-template/template-list.html'">
+                    <i class="fas fa-cogs"></i>
+                    <span>结算模板管理</span>
+                </button>
+                <button class="btn-secondary" onclick="window.location.href='material-management.html'">
+                    <i class="fas fa-folder-open"></i>
+                    <span>资料管理</span>
+                </button>
+                <button class="btn-secondary" onclick="window.location.href='settlement-merge.html'">
+                    <i class="fas fa-layer-group"></i>
+                    <span>外部结算管理</span>
+                </button>
+                <button class="btn-secondary" onclick="alert('从PMS同步结算单功能待实现')">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>同步结算单</span>
+                </button>
+                <button class="btn-outline" onclick="refreshData()">
+                    <i class="fas fa-redo"></i>
+                    <span>刷新</span>
+                </button>
             </div>
         </div>
-        <!-- 顶部任务跟进标签栏 -->
-        <div class="flex flex-wrap items-center space-x-2 mb-4">
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="全部" onclick="toggleStatusTab(this)">全部</button>
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="待接收" onclick="toggleStatusTab(this)">待接收</button>
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="已拒绝" onclick="toggleStatusTab(this)">已拒绝</button>
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="跟进中" onclick="toggleStatusTab(this)">跟进中</button>
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="待交付" onclick="toggleStatusTab(this)">待交付</button>
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="待验收" onclick="toggleStatusTab(this)">待验收</button>
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="已暂停" onclick="toggleStatusTab(this)">已暂停</button>
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="已完成" onclick="toggleStatusTab(this)">已完成</button>
-            <button class="status-tab px-4 py-2 text-sm font-medium mr-4" data-value="已关闭" onclick="toggleStatusTab(this)">已关闭</button>
+
+        <!-- 客户项目汇总信息 -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg p-6 mb-6 border border-blue-100">
+            <div class="flex items-center mb-6">
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg p-3 mr-4">
+                    <i class="fas fa-chart-bar text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">客户项目汇总 <span class="text-lg text-blue-600" id="totalProjectsTitle">(0个项目)</span></h3>
+                    <p class="text-sm text-gray-600">嘉士伯项目数据概览</p>
+                </div>
+            </div>
+            
+            <!-- 数据汇总 -->
+              <div>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow">
+                             <div class="text-lg font-semibold text-gray-800 mb-3 flex items-center justify-center">
+                                 总数
+                                 <i class="fas fa-question-circle ml-2 text-gray-400 cursor-help" title="包含所有状态的结算单总数和总金额统计"></i>
+                             </div>
+                             <div class="text-base font-medium text-gray-700">
+                                 <span class="text-xl font-bold text-purple-600" id="totalSettlements">0</span>（单）| <span class="text-xl font-bold text-green-600" id="totalAmount">0</span>（元）
+                             </div>
+                         </div>
+                         <div class="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow">
+                             <div class="text-lg font-semibold text-yellow-600 mb-3 flex items-center justify-center">
+                                 待结算
+                                 <i class="fas fa-question-circle ml-2 text-gray-400 cursor-help" title="等待处理和待确认状态的结算单数量和金额"></i>
+                             </div>
+                             <div class="text-base font-medium text-gray-700">
+                                 <span class="text-xl font-bold text-yellow-600" id="pendingSettlements">0</span>（单）| <span class="text-xl font-bold text-yellow-600" id="pendingAmount">0</span>（元）
+                             </div>
+                         </div>
+                         <div class="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow">
+                             <div class="text-lg font-semibold text-blue-600 mb-3 flex items-center justify-center">
+                                 结算中
+                                 <i class="fas fa-question-circle ml-2 text-gray-400 cursor-help" title="正在处理中的结算单数量和金额"></i>
+                             </div>
+                             <div class="text-base font-medium text-gray-700">
+                                 <span class="text-xl font-bold text-blue-600" id="processingSettlements">0</span>（单）| <span class="text-xl font-bold text-blue-600" id="processingAmount">0</span>（元）
+                             </div>
+                         </div>
+                         <div class="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow">
+                             <div class="text-lg font-semibold text-red-600 mb-3 flex items-center justify-center">
+                                 已作废
+                                 <i class="fas fa-question-circle ml-2 text-gray-400 cursor-help" title="已作废的结算单数量和金额"></i>
+                             </div>
+                             <div class="text-base font-medium text-gray-700">
+                                 <span class="text-xl font-bold text-gray-600" id="voidSettlements">0</span>（单）| <span class="text-xl font-bold text-red-600" id="voidAmount">0</span>（元）
+                             </div>
+                         </div>
+                    </div>
+              </div>
         </div>
-        <!-- 搜索栏保留 -->
-        <div class="bg-white rounded-lg shadow-md p-4 mb-4 flex flex-wrap items-center space-x-4">
-            <input type="text" id="searchInput" placeholder="搜索结算编号/名称/项目" class="px-3 py-2 border rounded-md w-64 mb-2">
-            <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mb-2" onclick="filterTable()"><i class="fas fa-search mr-1"></i>查询</button>
+
+
+
+        <!-- 搜索栏 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">关键词搜索</label>
+                    <input type="text" id="searchInput" placeholder="结算编号/名称/项目" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">结算状态</label>
+                    <select id="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">全部状态</option>
+                <option value="待处理">待结算</option>
+                <option value="处理中">结算中</option>
+                <option value="异常">作废</option>
+              </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">产品类型</label>
+                    <select id="productFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">全部产品</option>
+                        <option value="到家数字化营销">到家数字化营销</option>
+                        <option value="到店数字化营销">到店数字化营销</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">金额范围（万元）</label>
+                    <div class="flex space-x-2">
+                        <input type="number" id="minAmount" placeholder="最小金额" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <span class="flex items-center text-gray-500">-</span>
+                        <input type="number" id="maxAmount" placeholder="最大金额" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">创建时间</label>
+                    <div class="flex space-x-2">
+                        <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <span class="flex items-center text-gray-500">至</span>
+                        <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">项目周期</label>
+                    <select id="projectCycleFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">全部周期</option>
+                        <option value="2024年">2024年</option>
+                        <option value="2025年">2025年</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <div class="flex space-x-2 w-full">
+                        <button class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors" onclick="filterData()"><i class="fas fa-search mr-1"></i>查询</button>
+                        <button class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors" onclick="resetFilters()"><i class="fas fa-undo mr-1"></i>重置</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- 主表格 -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sticky left-0 z-10 bg-white">结算编号</th>
-                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">结算名称</th>
-                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">项目</th>
-                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">产品</th>
-                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">任务跟进</th>
-                            <th class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">收入金额(含税)</th>
-                            <th class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">客户已确认金额(含税)</th>
-                            <th class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">客户未确认金额(含税)</th>
-                            <th class="px-4 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">外部结算流程数</th>
-                            <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sticky right-0 z-20 bg-white">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="internalSettlementList">
-                        <!-- 数据由JS动态生成 -->
-                    </tbody>
-                </table>
+
+        <!-- 按项目归类的结算单列表 -->
+        <div id="projectGroupsList">
+            <!-- 项目分组内容由JS动态生成 -->
+        </div>
+    </div>
+
+    <!-- 创建外部结算单模态框 -->
+    <div id="createExternalSettlementModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 hidden">
+        <div class="relative top-10 mx-auto p-6 border w-3/4 max-w-6xl shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">创建外部结算单</h3>
+                <button onclick="closeCreateExternalSettlementModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 左侧：选择内部结算单 -->
+                <div>
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">选择内部结算单</h4>
+                    <!-- 筛选搜索 -->
+                    <div class="mb-4">
+                        <input type="text" id="internalSettlementSearch" placeholder="搜索结算单编号或名称..." 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               oninput="filterInternalSettlements()">
+                    </div>
+                    <div class="border rounded-lg p-4 max-h-96 overflow-y-auto">
+                        <div id="internalSettlementSelection">
+                            <!-- 内部结算单选择列表 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧：外部结算单信息 -->
+                <div>
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">外部结算单信息</h4>
+                    <form id="externalSettlementForm">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">外部结算单编号</label>
+                                <input type="text" id="externalSettlementNo" class="w-full px-3 py-2 border rounded-md bg-gray-100" 
+                                       value="" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">总结算金额</label>
+                                <input type="number" id="totalSettlementAmount" class="w-full px-3 py-2 border rounded-md bg-gray-100" 
+                                       step="0.01" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">结算说明</label>
+                                <textarea id="settlementDescription" class="w-full px-3 py-2 border rounded-md" rows="3" 
+                                          placeholder="请输入结算说明..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- 选中的内部结算单分配 -->
+                    <div class="mt-6">
+                        <h4 class="text-lg font-medium mb-3 text-gray-700">结算单分配明细</h4>
+                        <div id="settlementAllocation" class="space-y-2">
+                            <!-- 分配明细由JS动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeCreateExternalSettlementModal()" 
+                        class="px-6 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
+                    取消
+                </button>
+                <button onclick="submitCreateExternalSettlement()" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>创建
+                </button>
             </div>
         </div>
     </div>
-    <!-- 1. 拒绝弹窗 -->
-    <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
-            <button onclick="closeRejectModal()" class="absolute top-3 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
-            <h2 class="text-lg font-bold mb-4">填写拒绝理由</h2>
-            <textarea id="rejectReasonInput" class="w-full border rounded p-2 mb-4" rows="4" placeholder="请输入拒绝理由"></textarea>
-            <div class="flex justify-end">
-                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded mr-2" onclick="closeRejectModal()">取消</button>
-                <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="submitRejectReason()">提交</button>
-            </div>
-        </div>
-    </div>
-    <!-- 2. 查看拒绝理由弹窗 -->
-    <div id="viewRejectModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
-            <button onclick="closeViewRejectModal()" class="absolute top-3 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
-            <h2 class="text-lg font-bold mb-4">拒绝理由</h2>
-            <div id="rejectReasonText" class="text-gray-700 mb-4"></div>
-            <div class="flex justify-end">
-                <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="closeViewRejectModal()">关闭</button>
-            </div>
-        </div>
-    </div>
-    <!-- 5. 分配子任务弹窗 -->
-    <div id="assignModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative">
-            <button onclick="closeAssignModal()" class="absolute top-3 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
-            <h2 class="text-lg font-bold mb-4">分配子任务</h2>
-            <div id="assignSubtaskList" class="mb-4"></div>
-            <div class="flex justify-end">
-                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded mr-2" onclick="closeAssignModal()">取消</button>
-                <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="submitAssign()">提交</button>
-            </div>
-        </div>
-    </div>
+
+    <!-- 其他模态框保持不变 -->
     <!-- 结算详情弹窗 -->
     <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-8 relative">
@@ -105,412 +267,649 @@
             </div>
         </div>
     </div>
-    <!-- 已暂停、已关闭理由弹窗 -->
-    <div id="reasonModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
-            <button onclick="closeReasonModal()" class="absolute top-3 right-4 text-gray-400 hover:text-blue-500 text-2xl font-bold">&times;</button>
-            <h2 class="text-lg font-bold mb-4" id="reasonModalTitle">理由</h2>
-            <div id="reasonModalText" class="text-gray-700 mb-4"></div>
-            <div class="flex justify-end">
-                <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="closeReasonModal()">关闭</button>
-            </div>
-        </div>
-    </div>
+
     <style>
     .status-tab {
+        color: #6b7280;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+    }
+    .status-tab:hover {
+        background: #f3f4f6;
         color: #374151;
-        background: transparent;
-        transition: all 0.15s;
-        border-bottom: 2px solid transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     .status-tab.selected {
-        color: #2563eb;
-        border-bottom: 2px solid #2563eb;
+        color: white;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border: 1px solid #2563eb;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        transform: translateY(-2px);
     }
     .status-tab[data-value="全部"].selected {
-        color: #1e40af;
-        border-bottom: 2px solid #1e40af;
+        background: linear-gradient(135deg, #6366f1, #4338ca);
+        border: 1px solid #4f46e5;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .status-tab[data-value="待处理"].selected {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border: 1px solid #f59e0b;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    .status-tab[data-value="处理中"].selected {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: 1px solid #10b981;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .status-tab[data-value="待确认"].selected {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        border: 1px solid #8b5cf6;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    .status-tab[data-value="已完成"].selected {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        border: 1px solid #06b6d4;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+    .status-tab[data-value="异常"].selected {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border: 1px solid #ef4444;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    .project-group {
+        transition: all 0.3s ease;
+    }
+    .project-settlements {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+    .project-settlements.expanded {
+        max-height: 2000px;
+    }
+    .settlement-allocation-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        background-color: #f9fafb;
     }
     </style>
+
     <script>
     // 示例数据
     const data = [
       {
         id: 'BS-25028456',
-        name: '	1664-美团11月精准营销活动结算单',
+        name: '1664-美团11月精准营销活动结算单',
         project: '2024年框嘉士伯美团RTB',
+        projectNo: 'SG-250428',
+        customer: '嘉士伯',
+        projectCycle: '2024年',
         product: '到家数字化营销>美团广告',
-        status: '待接收',
-        income: '61,800.01',
-        confirmed: '60,000.00',
-        unconfirmed: '1,800.01',
-        process: { total: 3, done: 2, undone: 1, abnormal: 0 },
-        details: {
-          flows: [
-            { name: '外部结算单1', status: '已完成', amount: '30,000.00' },
-            { name: '外部结算单2', status: '已完成', amount: '20,000.00' },
-            { name: '外部结算单3', status: '未完成', amount: '11,800.01' }
-          ],
-          files: [
-            { name: '合同.pdf', url: '#' },
-            { name: '报价单.xlsx', url: '#' }
-          ]
-        }
+        status: '待处理',
+        income: 61800.01,
+        confirmed: 60000.00,
+        unconfirmed: 1800.01
       },
       {
         id: 'BS-25028457',
         name: '乌苏-美团11月精准营销活动结算单',
         project: '2024年框嘉士伯美团RTB放',
+        projectNo: 'SG-250429',
+        customer: '嘉士伯',
+        projectCycle: '2024年',
         product: '到家数字化营销>美团广告',
-        status: '跟进中',
-        income: '88,000.00',
-        confirmed: '80,000.00',
-        unconfirmed: '8,000.00',
-        process: { total: 2, done: 1, undone: 1, abnormal: 0 },
-        details: {
-          flows: [
-            { name: '外部结算单A', status: '已完成', amount: '50,000.00' },
-            { name: '外部结算单B', status: '未完成', amount: '38,000.00' }
-          ],
-          files: [
-            { name: '广告明细.pdf', url: '#' }
-          ]
-        }
+        status: '处理中',
+        income: 88000.00,
+        confirmed: 80000.00,
+        unconfirmed: 8000.00
       },
       {
         id: 'BS-25028458',
         name: '嘉士伯&京东到家25年2月活动核销',
         project: '2025年嘉士伯2月到家活动',
+        projectNo: 'SG-250430',
+        customer: '嘉士伯',
+        projectCycle: '2025年',
         product: '到家数字化营销>京东到家',
-        status: '待交付',
-        income: '120,000.00',
-        confirmed: '100,000.00',
-        unconfirmed: '20,000.00',
-        process: { total: 4, done: 3, undone: 1, abnormal: 0 },
-        details: {
-          flows: [
-            { name: '外部结算单A', status: '已完成', amount: '60,000.00' },
-            { name: '外部结算单B', status: '已完成', amount: '40,000.00' },
-            { name: '外部结算单C', status: '未完成', amount: '20,000.00' }
-          ],
-          files: [
-            { name: '服务合同.pdf', url: '#' }
-          ]
-        }
+        status: '待确认',
+        income: 120000.00,
+        confirmed: 100000.00,
+        unconfirmed: 20000.00
       },
       {
         id: 'BS-25028459',
         name: 'SG-250015嘉士伯饿了么2月核销结算单',
         project: '2025年嘉士伯2月到家活动',
+        projectNo: 'SG-250430',
+        customer: '嘉士伯',
+        projectCycle: '2025年',
         product: '到家数字化营销>饿了么',
-        status: '待验收',
-        income: '200,000.00',
-        confirmed: '180,000.00',
-        unconfirmed: '20,000.00',
-        process: { total: 5, done: 4, undone: 1, abnormal: 0 },
-        details: {
-          flows: [
-            { name: '外部结算单A', status: '已完成', amount: '100,000.00' },
-            { name: '外部结算单B', status: '已完成', amount: '80,000.00' },
-            { name: '外部结算单C', status: '未完成', amount: '20,000.00' }
-          ],
-          files: [
-            { name: '核销明细.pdf', url: '#' }
-          ]
-        }
+        status: '待确认',
+        income: 200000.00,
+        confirmed: 180000.00,
+        unconfirmed: 20000.00
       },
       {
         id: 'BS-25028460',
         name: 'SG-250015嘉士伯饿了么3月广告结算单1（2月项目打款结算至3月）',
         project: '2025年嘉士伯2月到家活动',
+        projectNo: 'SG-250430',
+        customer: '嘉士伯',
+        projectCycle: '2025年',
         product: '到家数字化营销>饿了么广告',
-        status: '已暂停',
-        income: '50,000.00',
-        confirmed: '30,000.00',
-        unconfirmed: '20,000.00',
-        process: { total: 1, done: 0, undone: 1, abnormal: 1 },
-        details: {
-          flows: [
-            { name: '外部结算单A', status: '异常', amount: '50,000.00' }
-          ],
-          files: [
-            { name: '暂停说明.pdf', url: '#' }
-          ]
-        }
+        status: '异常',
+        income: 50000.00,
+        confirmed: 30000.00,
+        unconfirmed: 20000.00
       },
       {
         id: 'BS-25028461',
         name: '嘉士伯2月淘鲜达活动结算单',
         project: '2025年嘉士伯2月到家活动',
+        projectNo: 'SG-250430',
+        customer: '嘉士伯',
+        projectCycle: '2025年',
         product: '到家数字化营销>淘鲜达',
         status: '已完成',
-        income: '300,000.00',
-        confirmed: '300,000.00',
-        unconfirmed: '0.00',
-        process: { total: 2, done: 2, undone: 0, abnormal: 0 },
-        details: {
-          flows: [
-            { name: '外部结算单A', status: '已完成', amount: '150,000.00' },
-            { name: '外部结算单B', status: '已完成', amount: '150,000.00' }
-          ],
-          files: [
-            { name: '结算报告.pdf', url: '#' }
-          ]
-        }
+        income: 300000.00,
+        confirmed: 300000.00,
+        unconfirmed: 0.00
       },
       {
         id: 'BS-25028462',
         name: '嘉士伯饿了么1月核销结算单（拆分至2月部分）',
         project: '2025年嘉士伯2月到家活动',
+        projectNo: 'SG-250430',
+        customer: '嘉士伯',
+        projectCycle: '2025年',
         product: '到家数字化营销>饿了么',
-        status: '已关闭',
-        income: '0.00',
-        confirmed: '0.00',
-        unconfirmed: '0.00',
-        process: { total: 0, done: 0, undone: 0, abnormal: 0 },
-        details: {
-          flows: [],
-          files: []
-        }
+        status: '异常',
+        income: 0.00,
+        confirmed: 0.00,
+        unconfirmed: 0.00
       },
       {
         id: 'BS-25028463',
         name: '微信支付2025-04-10活动结算单',
         project: '2025年嘉士伯2月到家活动',
+        projectNo: 'SG-250430',
+        customer: '嘉士伯',
+        projectCycle: '2025年',
         product: '到店数字化营销>微信支付',
-        status: '已拒绝',
-        income: '0.00',
-        confirmed: '0.00',
-        unconfirmed: '0.00',
-        process: { total: 0, done: 0, undone: 0, abnormal: 0 },
-        details: { flows: [], files: [] }
+        status: '异常',
+        income: 0.00,
+        confirmed: 0.00,
+        unconfirmed: 0.00
       }
     ];
 
-    // 拒绝理由存储
-    let rejectReasons = {};
-
-    // 渲染表格
-    function renderTable(list) {
-      const tbody = document.getElementById('internalSettlementList');
-      tbody.innerHTML = '';
-      list.forEach((row, idx) => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-blue-50 transition';
-        tr.innerHTML = `
-          <td class=\"px-4 py-2 whitespace-nowrap text-blue-600 underline cursor-pointer hover:text-blue-800 sticky left-0 z-10 bg-white\" onclick=\"showDetail(${idx})\">${row.id}</td>
-          <td class=\"px-4 py-2 whitespace-nowrap\">${row.name}</td>
-          <td class=\"px-4 py-2 whitespace-nowrap\">${row.project}</td>
-          <td class=\"px-4 py-2 whitespace-nowrap\">${row.product || ''}</td>
-          <td class=\"px-4 py-2 whitespace-nowrap\">${getStatusTag(row.status)}</td>
-          <td class=\"px-4 py-2 whitespace-nowrap text-right\">${row.income}</td>
-          <td class=\"px-4 py-2 whitespace-nowrap text-right\">${row.confirmed}</td>
-          <td class=\"px-4 py-2 whitespace-nowrap text-right\">${row.unconfirmed}</td>
-          <td class=\"px-4 py-2 whitespace-nowrap text-center\">
-            <span class=\"inline-block bg-blue-100 text-blue-700 rounded px-2 py-1 text-xs font-semibold mr-1\">总:${row.process.total}</span>
-            <span class=\"inline-block bg-green-100 text-green-700 rounded px-2 py-1 text-xs font-semibold mr-1\">完成:${row.process.done}</span>
-            <span class=\"inline-block bg-yellow-100 text-yellow-700 rounded px-2 py-1 text-xs font-semibold mr-1\">未完成:${row.process.undone}</span>
-            <span class=\"inline-block bg-red-100 text-red-700 rounded px-2 py-1 text-xs font-semibold\">异常:${row.process.abnormal}</span>
-          </td>
-          <td class=\"px-4 py-2 whitespace-nowrap text-left sticky right-0 z-20 bg-white\">${getActionByStatus(row.status, idx)}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // 筛选功能
-    function filterTable() {
-      const keyword = document.getElementById('searchInput').value.trim();
-      const statusArr = getSelectedStatusFilters();
-      const filtered = data.filter(row => {
-        const matchKeyword = !keyword || row.id.includes(keyword) || row.name.includes(keyword) || row.project.includes(keyword);
-        const matchStatus = statusArr.includes(row.status);
-        return matchKeyword && matchStatus;
-      });
-      renderTable(filtered);
-    }
-
-    // 详情弹窗
-    function showDetail(idx) {
-      const row = data[idx];
-      const modal = document.getElementById('detailModal');
-      const content = document.getElementById('modalContent');
-      content.innerHTML = `
-        <div class='mb-4'>
-          <div class='font-semibold mb-2'>基础信息</div>
-          <div class='grid grid-cols-2 gap-4 text-sm'>
-            <div><span class='text-gray-500'>结算编号：</span>${row.id}</div>
-            <div><span class='text-gray-500'>结算名称：</span>${row.name}</div>
-            <div><span class='text-gray-500'>项目：</span>${row.project}</div>
-            <div><span class='text-gray-500'>产品：</span>${row.product || ''}</div>
-            <div><span class='text-gray-500'>任务跟进：</span>${getStatusTag(row.status)}</div>
-            <div><span class='text-gray-500'>收入金额：</span>${row.income}</div>
-            <div><span class='text-gray-500'>客户已确认金额：</span>${row.confirmed}</div>
-            <div><span class='text-gray-500'>客户未确认金额：</span>${row.unconfirmed}</div>
-          </div>
-        </div>
-      `;
-      modal.classList.remove('hidden');
-    }
-    function closeDetailModal() {
-      document.getElementById('detailModal').classList.add('hidden');
-    }
-
-    // 初始化
-    renderTable(data);
-
-    // 2. 渲染表格时插入新字段，动态生成操作内容
-    function getStatusTag(status) {
-      switch(status) {
-        case '待接收':
-          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700'>${status}</span>`;
-        case '跟进中':
-          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700'>${status}</span>`;
-        case '待交付':
-          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700'>${status}</span>`;
-        case '待验收':
-          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700'>${status}</span>`;
-        case '已暂停':
-          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-500'>${status}</span>`;
-        case '已完成':
-          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700'>${status}</span>`;
-        case '已关闭':
-          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700'>${status}</span>`;
-        default:
-          return `<span class='px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-500'>${status}</span>`;
-      }
-    }
-    function getActionByStatus(status, idx) {
-      switch(status) {
-        case '待接收':
-          return `<button class='px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs mr-2' onclick='openAssignModal(${idx})'>接收</button><button class='px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs' onclick='openRejectModal(${idx})'>拒绝</button>`;
-        case '已拒绝':
-          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs mr-2' onclick='data[${idx}].status="跟进中";renderTable(data);'>启用</button><button class='px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs' onclick='openViewRejectModal(${idx})'>查看拒绝理由</button>`;
-        case '跟进中':
-          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs' onclick='window.location.href="task-management.html"'>进入任务</button>`;
-        case '待交付':
-          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs  mr-2' onclick='window.location.href="task-management.html"'>进入任务</button><button class='px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs mr-2' onclick='window.open("https://testop.ismartgo.cn/pms2/h5/project/main.html?projectid=7452&rdp-mnu=148000163980","_blank")'>PMS交付确认</button>`;
-        case '待验收':
-          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs  mr-2' onclick='window.location.href="task-management.html"'>进入任务</button><button class='px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs mr-2' onclick='window.open("https://testop.ismartgo.cn/pms2/h5/project/main.html?projectid=7452&rdp-mnu=148000163980","_blank")'>PMS验收确认</button>`;
-        case '已暂停':
-          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs mr-2' onclick='window.location.href="task-management.html"'>进入任务</button><button class='px-2 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 text-xs' onclick='openReasonModal("pause",${idx})'>查看暂停理由</button>`;
-        case '已关闭':
-          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs mr-2' onclick='window.location.href="task-management.html"'>进入任务</button><button class='px-2 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 text-xs' onclick='openReasonModal("close",${idx})'>查看关闭理由</button>`;
-        case '已完成':
-          return `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs' onclick='window.location.href="task-management.html"'>进入任务</button>`;
-        default:
-          return '';
-      }
-    }
-
-    // 拒绝理由弹窗
-    function openRejectModal(idx) {
-      document.getElementById('rejectModal').style.display = 'flex';
-      document.getElementById('rejectReasonInput').value = '';
-      document.getElementById('rejectModal').dataset.idx = idx;
-    }
-    function closeRejectModal() {
-      document.getElementById('rejectModal').style.display = 'none';
-    }
-    function submitRejectReason() {
-      const idx = document.getElementById('rejectModal').dataset.idx;
-      const reason = document.getElementById('rejectReasonInput').value.trim();
-      if (!reason) { alert('请填写拒绝理由'); return; }
-      rejectReasons[idx] = reason;
-      data[idx].status = '已拒绝';
-      closeRejectModal();
-      renderTable(data);
-    }
-    function openViewRejectModal(idx) {
-      document.getElementById('viewRejectModal').style.display = 'flex';
-      document.getElementById('rejectReasonText').innerText = rejectReasons[idx] || '无理由';
-    }
-    function closeViewRejectModal() {
-      document.getElementById('viewRejectModal').style.display = 'none';
-    }
-    // 分配子任务弹窗
-    function openAssignModal(idx) {
-      document.getElementById('assignModal').style.display = 'flex';
-      document.getElementById('assignModal').dataset.idx = idx;
-      assignSubtasks = [{templateId:'',amount:'',owner:''}];
-      renderAssignSubtasks();
-    }
-    function closeAssignModal() {
-      document.getElementById('assignModal').style.display = 'none';
-    }
-    function submitAssign() {
-      const idx = document.getElementById('assignModal').dataset.idx;
-      data[idx].status = '跟进中';
-      data[idx].subtasks = assignSubtasks;
-      closeAssignModal();
-      renderTable(data);
-    }
-    function renderAssignSubtasks() {
-      const container = document.getElementById('assignSubtaskList');
-      container.innerHTML = assignSubtasks.map((row, i) => `
-        <div class='flex items-center space-x-2 mb-2'>
-          <select class='border rounded px-2 py-1' style='min-width:120px' onchange='assignSubtasks[${i}].templateId=this.value'>
-            <option value=''>选择模板</option>
-            ${taskTemplates.map(t=>`<option value='${t.id}' ${row.templateId==t.id?'selected':''}>${t.name}</option>`).join('')}
-          </select>
-          <input type='number' class='border rounded px-2 py-1 w-24' placeholder='待确认金额' value='${row.amount}' onchange='assignSubtasks[${i}].amount=this.value'>
-          <input type='text' class='border rounded px-2 py-1 w-24' placeholder='负责人(选填)' value='${row.owner}' onchange='assignSubtasks[${i}].owner=this.value'>
-          <button class='px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs' onclick='removeAssignSubtask(${i})'>删除</button>
-        </div>
-      `).join('') + `<button class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs' onclick='addAssignSubtask()'>添加子任务</button>`;
-    }
-    function addAssignSubtask() {
-      assignSubtasks.push({templateId:'',amount:'',owner:''});
-      renderAssignSubtasks();
-    }
-    function removeAssignSubtask(i) {
-      assignSubtasks.splice(i,1);
-      renderAssignSubtasks();
-    }
-
-    // 已暂停、已关闭理由弹窗
-    function openReasonModal(type, idx) {
-      document.getElementById('reasonModal').style.display = 'flex';
-      document.getElementById('reasonModalTitle').innerText = type === 'pause' ? '暂停理由' : '关闭理由';
-      document.getElementById('reasonModalText').innerText = data[idx][type + 'Reason'] || '无理由';
-    }
-    function closeReasonModal() {
-      document.getElementById('reasonModal').style.display = 'none';
-    }
-
-    // 接收弹窗子任务模板数据
-    const taskTemplates = [
-      { id: 1, name: '精明购标准模板' },
-      { id: 2, name: '服务费总部结算' },
-      { id: 3, name: '核销费区域结算' },
-      { id: 4, name: '湖南核销费结算' },
-      { id: 5, name: '华中核销费结算' },
-      { id: 6, name: 'RTB费用结算' }
-    ];
-    // 分配子任务弹窗支持添加多个子任务
-    let assignSubtasks = [];
-
-    // 顶部标签栏交互
+    // 全局变量
     let selectedStatusTab = '全部';
+    let filteredData = [...data];
+    let selectedInternalSettlements = new Set();
+    let settlementAllocations = {};
+
+    // 初始化页面
+    function initPage() {
+        updateSummaryStats();
+        renderProjectGroups();
+        document.querySelector('.status-tab[data-value="全部"]').classList.add('selected');
+        
+        // 设置默认日期
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
+        document.getElementById('settlementStartDate').value = firstDay.toISOString().split('T')[0];
+        document.getElementById('settlementEndDate').value = lastDay.toISOString().split('T')[0];
+    }
+
+    // 更新汇总统计
+    function updateSummaryStats() {
+        const projects = [...new Set(data.map(item => item.project))];
+        const totalAmount = data.reduce((sum, item) => sum + item.income, 0);
+        const pendingAmount = data.filter(item => ['待处理', '待确认'].includes(item.status)).reduce((sum, item) => sum + item.income, 0);
+        const processingAmount = data.filter(item => item.status === '处理中').reduce((sum, item) => sum + item.income, 0);
+        const voidAmount = data.filter(item => item.status === '异常').reduce((sum, item) => sum + item.income, 0);
+        
+        const totalSettlements = data.length;
+        const pendingSettlements = data.filter(item => ['待处理', '待确认'].includes(item.status)).length;
+        const processingSettlements = data.filter(item => item.status === '处理中').length;
+        const voidSettlements = data.filter(item => item.status === '异常').length;
+        
+        document.getElementById('totalProjectsTitle').textContent = `(${projects.length}个项目)`;
+        // 汇总区域显示格式：数字（不含货币符号）
+        document.getElementById('totalAmount').textContent = totalAmount.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('pendingAmount').textContent = pendingAmount.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('processingAmount').textContent = processingAmount.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('voidAmount').textContent = voidAmount.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('totalSettlements').textContent = totalSettlements;
+        document.getElementById('pendingSettlements').textContent = pendingSettlements;
+        document.getElementById('processingSettlements').textContent = processingSettlements;
+        document.getElementById('voidSettlements').textContent = voidSettlements;
+    }
+
+    // 按项目分组渲染
+    function renderProjectGroups() {
+        const projectGroups = {};
+        
+        filteredData.forEach(item => {
+            if (!projectGroups[item.project]) {
+                projectGroups[item.project] = [];
+            }
+            projectGroups[item.project].push(item);
+        });
+        
+        const container = document.getElementById('projectGroupsList');
+        container.innerHTML = '';
+        
+        Object.keys(projectGroups).forEach(project => {
+             const settlements = projectGroups[project];
+             const projectTotal = settlements.reduce((sum, item) => sum + item.income, 0);
+             const projectConfirmed = settlements.reduce((sum, item) => sum + item.confirmed, 0);
+             const projectNo = settlements[0].projectNo; // 获取项目号
+             const customerName = settlements[0].customer; // 获取客户名称
+             
+             const projectDiv = document.createElement('div');
+             projectDiv.className = 'bg-white rounded-lg shadow-md mb-4 project-group';
+             projectDiv.innerHTML = `
+                 <div class="p-4 border-b cursor-pointer hover:bg-gray-50" onclick="toggleProject('${project}')">
+                     <div class="flex justify-between items-start">
+                          <div class="flex items-start flex-1">
+                              <i class="fas fa-chevron-right mr-3 mt-1 transition-transform" id="arrow-${project}"></i>
+                              <div class="flex-1">
+                                  <div class="flex items-center flex-wrap gap-2 mb-2">
+                                      <h3 class="text-lg font-semibold text-gray-800">${project}</h3>
+                                      <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">${projectNo.replace(/^\d{4}-/, '')}</span>
+                                      <span class="text-sm text-gray-600">${settlements.length}个结算单</span>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="ml-6">
+                               <div class="flex items-center space-x-4">
+                                   <div class="text-center">
+                                       <div class="text-base font-bold text-gray-800">${formatAmount(projectTotal)}</div>
+                                       <div class="text-xs text-gray-500">总金额</div>
+                                   </div>
+                                   <div class="w-px h-8 bg-gray-300"></div>
+                                   <div class="text-center">
+                                       <div class="text-base font-semibold text-yellow-600">${formatAmount(settlements.filter(s => ['待处理', '待确认'].includes(s.status)).reduce((sum, s) => sum + s.income, 0))}</div>
+                                       <div class="text-xs text-gray-500">待结算金额</div>
+                                   </div>
+                                   <div class="w-px h-8 bg-gray-300"></div>
+                                   <div class="text-center">
+                                       <div class="text-base font-semibold text-blue-600">${formatAmount(settlements.filter(s => s.status === '处理中').reduce((sum, s) => sum + s.income, 0))}</div>
+                                       <div class="text-xs text-gray-500">结算中金额</div>
+                                   </div>
+                                   <div class="w-px h-8 bg-gray-300"></div>
+                                   <div class="text-center">
+                                       <div class="text-base font-semibold text-red-600">${formatAmount(settlements.filter(s => s.status === '异常').reduce((sum, s) => sum + s.income, 0))}</div>
+                                       <div class="text-xs text-gray-500">作废金额</div>
+                                   </div>
+                               </div>
+                           </div>
+                      </div>
+                 </div>
+                 <div class="project-settlements" id="settlements-${project}">
+                     <div class="overflow-x-auto">
+                         <table class="min-w-full divide-y divide-gray-200">
+                             <thead class="bg-gray-50">
+                                 <tr>
+                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">结算编号</th>
+                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">结算名称</th>
+                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品</th>
+                                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">收入金额(含税)</th>
+                                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">客户已确认金额(含税)</th>
+                                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">客户未确认金额(含税)</th>
+                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                 </tr>
+                             </thead>
+                             <tbody class="bg-white divide-y divide-gray-200">
+                                 ${settlements.map(settlement => `
+                                     <tr class="hover:bg-blue-50 transition">
+                                         <td class="px-4 py-2 whitespace-nowrap text-blue-600 underline cursor-pointer hover:text-blue-800" onclick="showDetail('${settlement.id}')">${settlement.id}</td>
+                                         <td class="px-4 py-2 whitespace-nowrap">${settlement.name}</td>
+                                         <td class="px-4 py-2 whitespace-nowrap">${settlement.product || ''}</td>
+                                         <td class="px-4 py-2 whitespace-nowrap text-right">${formatAmount(settlement.income)}</td>
+                                         <td class="px-4 py-2 whitespace-nowrap text-right">${formatAmount(settlement.confirmed)}</td>
+                                         <td class="px-4 py-2 whitespace-nowrap text-right">${formatAmount(settlement.unconfirmed)}</td>
+                                         <td class="px-4 py-2 whitespace-nowrap text-left">
+                                              <button class="px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 text-xs shadow-md transform hover:scale-105 transition-all duration-200" onclick="generateExternalSettlement('${settlement.id}')">生成外部结算单</button>
+                                          </td>
+                                     </tr>
+                                 `).join('')}
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+             `;
+             container.appendChild(projectDiv);
+         });
+    }
+
+    // 切换项目展开/收起
+    function toggleProject(project) {
+        const settlementsDiv = document.getElementById(`settlements-${project}`);
+        const arrow = document.getElementById(`arrow-${project}`);
+        
+        if (settlementsDiv.classList.contains('expanded')) {
+            settlementsDiv.classList.remove('expanded');
+            arrow.style.transform = 'rotate(0deg)';
+        } else {
+            settlementsDiv.classList.add('expanded');
+            arrow.style.transform = 'rotate(90deg)';
+        }
+    }
+
+    // 状态标签切换
     function toggleStatusTab(btn) {
         const value = btn.getAttribute('data-value');
-        // 移除所有标签的选中状态
         document.querySelectorAll('.status-tab').forEach(tab => tab.classList.remove('selected'));
-        // 设置当前标签为选中状态
         btn.classList.add('selected');
         selectedStatusTab = value;
-        filterTable();
+        filterData();
     }
-    // 初始化全部选中
-    window.addEventListener('DOMContentLoaded',()=>{
-        document.querySelector('.status-tab[data-value="全部"]').classList.add('selected');
-    });
+
+    // 筛选数据
+    function filterData() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        const statusArr = getSelectedStatusFilters();
+        
+        filteredData = data.filter(row => {
+            const matchKeyword = !keyword || row.id.includes(keyword) || row.name.includes(keyword) || row.project.includes(keyword);
+            const matchStatus = statusArr.includes(row.status);
+            return matchKeyword && matchStatus;
+        });
+        
+        renderProjectGroups();
+    }
+
+    // 获取选中的状态过滤器
     function getSelectedStatusFilters() {
         if (selectedStatusTab === '全部') {
-            return ['待接收','已拒绝','跟进中','待交付','待验收','已暂停','已完成','已关闭'];
+            return ['待处理','处理中','待确认','已完成','异常'];
         }
         return [selectedStatusTab];
     }
+
+    // 刷新数据
+    function refreshData() {
+        updateSummaryStats();
+        filterData();
+    }
+
+    // 显示创建外部结算单模态框
+    function showCreateExternalSettlementModal() {
+        document.getElementById('createExternalSettlementModal').classList.remove('hidden');
+        renderInternalSettlementSelection();
+        updateExternalSettlementNo();
+    }
+
+    // 关闭创建外部结算单模态框
+    function closeCreateExternalSettlementModal() {
+        document.getElementById('createExternalSettlementModal').classList.add('hidden');
+        selectedInternalSettlements.clear();
+        settlementAllocations = {};
+        updateSettlementAllocation();
+    }
+
+    // 渲染内部结算单选择列表
+    function renderInternalSettlementSelection() {
+        const container = document.getElementById('internalSettlementSelection');
+        const availableSettlements = data.filter(item => ['待处理', '处理中', '待确认', '已完成'].includes(item.status));
+        
+        container.innerHTML = availableSettlements.map(settlement => `
+            <div class="flex items-center p-3 border rounded-lg mb-2 hover:bg-gray-50 settlement-item" 
+                 data-settlement-id="${settlement.id}" data-settlement-name="${settlement.name}">
+                <input type="checkbox" id="settlement-${settlement.id}" value="${settlement.id}" 
+                       onchange="toggleInternalSettlementSelection('${settlement.id}', this)" 
+                       class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="font-bold text-lg text-gray-900">${settlement.id}</div>
+                        <div class="text-lg font-bold text-green-600">待结算金额: ${formatAmount(settlement.income)}</div>
+                    </div>
+                    <div class="text-base text-gray-700 mb-1">${settlement.name}</div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">${settlement.projectNo.replace(/^\d{4}-/, '')}</span>
+                        <span class="text-xs text-gray-500">${settlement.project}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 筛选内部结算单
+    function filterInternalSettlements() {
+        const searchTerm = document.getElementById('internalSettlementSearch').value.toLowerCase();
+        const settlementItems = document.querySelectorAll('.settlement-item');
+        
+        settlementItems.forEach(item => {
+            const settlementId = item.dataset.settlementId.toLowerCase();
+            const settlementName = item.dataset.settlementName.toLowerCase();
+            
+            if (settlementId.includes(searchTerm) || settlementName.includes(searchTerm)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // 切换内部结算单选择
+    function toggleInternalSettlementSelection(settlementId, checkbox) {
+        if (checkbox.checked) {
+            selectedInternalSettlements.add(settlementId);
+            const settlement = data.find(item => item.id === settlementId);
+            settlementAllocations[settlementId] = {
+                maxAmount: settlement.income,
+                allocatedAmount: settlement.income
+            };
+        } else {
+            selectedInternalSettlements.delete(settlementId);
+            delete settlementAllocations[settlementId];
+        }
+        updateSettlementAllocation();
+        updateTotalSettlementAmount();
+    }
+
+    // 更新结算单分配明细
+    function updateSettlementAllocation() {
+        const container = document.getElementById('settlementAllocation');
+        
+        if (selectedInternalSettlements.size === 0) {
+            container.innerHTML = '<div class="text-gray-500 text-center py-4">请先选择内部结算单</div>';
+            return;
+        }
+        
+        container.innerHTML = Array.from(selectedInternalSettlements).map(settlementId => {
+            const settlement = data.find(item => item.id === settlementId);
+            const allocation = settlementAllocations[settlementId];
+            
+            return `
+                <div class="settlement-allocation-item border rounded-lg p-3 mb-3 bg-gray-50">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="font-bold text-lg text-gray-900">${settlement.id}</div>
+                        <button onclick="removeSettlementAllocation('${settlementId}')" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="text-base text-gray-700 mb-2">${settlement.name}</div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">${settlement.projectNo.replace(/^\d{4}-/, '')}</span>
+                        <span class="text-xs text-gray-500">${settlement.project}</span>
+                        <span class="text-xs text-gray-600 ml-auto">待结算金额: ${formatAmount(allocation.maxAmount)}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">结算金额:</span>
+                        <input type="number" value="${allocation.allocatedAmount}" 
+                               max="${allocation.maxAmount}" min="0" step="0.01"
+                               onchange="updateAllocationAmount('${settlementId}', this.value)"
+                               class="flex-1 px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-blue-500">
+                        <span class="text-sm text-gray-500">元</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 移除结算单分配
+    function removeSettlementAllocation(settlementId) {
+        selectedInternalSettlements.delete(settlementId);
+        delete settlementAllocations[settlementId];
+        document.getElementById(`settlement-${settlementId}`).checked = false;
+        updateSettlementAllocation();
+        updateTotalSettlementAmount();
+    }
+
+    // 更新分配金额
+    function updateAllocationAmount(settlementId, amount) {
+        const numAmount = parseFloat(amount) || 0;
+        const maxAmount = settlementAllocations[settlementId].maxAmount;
+        
+        if (numAmount > maxAmount) {
+            alert(`分配金额不能超过最大可结算金额 ${formatAmount(maxAmount)}`);
+            return;
+        }
+        
+        settlementAllocations[settlementId].allocatedAmount = numAmount;
+        updateTotalSettlementAmount();
+    }
+
+    // 更新总结算金额
+    function updateTotalSettlementAmount() {
+        const total = Object.values(settlementAllocations).reduce((sum, allocation) => sum + allocation.allocatedAmount, 0);
+        document.getElementById('totalSettlementAmount').value = total.toFixed(2);
+    }
+
+    // 更新外部结算单编号
+    function updateExternalSettlementNo() {
+        const now = new Date();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const random = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+        document.getElementById('externalSettlementNo').value = `ES-${month}${day}${random}`;
+    }
+
+    // 提交创建外部结算单
+    function submitCreateExternalSettlement() {
+        if (selectedInternalSettlements.size === 0) {
+            alert('请至少选择一个内部结算单');
+            return;
+        }
+        
+        const form = document.getElementById('externalSettlementForm');
+        const formData = new FormData(form);
+        
+        // 验证必填字段
+        const requiredFields = ['externalSettlementNo'];
+        const missingFields = [];
+        
+        requiredFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (!element.value.trim()) {
+                missingFields.push(element.previousElementSibling.textContent.replace('：', ''));
+            }
+        });
+        
+        if (missingFields.length > 0) {
+            alert(`请填写以下必填字段：${missingFields.join('、')}`);
+            return;
+        }
+        
+        // 验证结算金额
+        const totalAmount = parseFloat(document.getElementById('totalSettlementAmount').value) || 0;
+        if (totalAmount <= 0) {
+            alert('请为选中的内部结算单设置结算金额');
+            return;
+        }
+        
+        // 模拟创建成功
+        alert('外部结算单创建成功！');
+        closeCreateExternalSettlementModal();
+        
+        // 跳转到合并结算管理页面
+        setTimeout(() => {
+            if (confirm('是否跳转到合并结算管理页面查看？')) {
+                window.location.href = 'settlement-merge.html';
+            }
+        }, 1000);
+    }
+
+    // 生成外部结算单（单个）
+    function generateExternalSettlement(settlementId) {
+        const settlement = data.find(item => item.id === settlementId);
+        if (!settlement) return;
+        
+        // 预选择该结算单并打开模态框
+        showCreateExternalSettlementModal();
+        
+        setTimeout(() => {
+            const checkbox = document.getElementById(`settlement-${settlementId}`);
+            if (checkbox) {
+                checkbox.checked = true;
+                toggleInternalSettlementSelection(settlementId, checkbox);
+            }
+        }, 100);
+    }
+
+    // 显示详情
+    function showDetail(settlementId) {
+        const settlement = data.find(item => item.id === settlementId);
+        if (!settlement) return;
+        
+        const modal = document.getElementById('detailModal');
+        const content = document.getElementById('modalContent');
+        content.innerHTML = `
+            <div class='mb-4'>
+                <div class='font-semibold mb-2'>基础信息</div>
+                <div class='grid grid-cols-2 gap-4 text-sm'>
+                    <div><span class='text-gray-500'>结算编号：</span>${settlement.id}</div>
+                    <div><span class='text-gray-500'>结算名称：</span>${settlement.name}</div>
+                    <div><span class='text-gray-500'>项目：</span>${settlement.project}</div>
+                    <div><span class='text-gray-500'>产品：</span>${settlement.product || ''}</div>
+                    <div><span class='text-gray-500'>任务跟进：</span>${getStatusTag(settlement.status)}</div>
+                    <div><span class='text-gray-500'>收入金额：</span>${formatAmount(settlement.income)}</div>
+                    <div><span class='text-gray-500'>客户已确认金额：</span>${formatAmount(settlement.confirmed)}</div>
+                    <div><span class='text-gray-500'>客户未确认金额：</span>${formatAmount(settlement.unconfirmed)}</div>
+                </div>
+            </div>
+        `;
+        modal.classList.remove('hidden');
+    }
+
+    // 关闭详情模态框
+    function closeDetailModal() {
+        document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // 工具函数
+    function formatAmount(amount) {
+        return '¥' + amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function getStatusTag(status) {
+        const statusConfig = {
+            '待接收': 'bg-green-100 text-green-700',
+            '跟进中': 'bg-blue-100 text-blue-700',
+            '待交付': 'bg-orange-100 text-orange-700',
+            '待验收': 'bg-yellow-100 text-yellow-700',
+            '已暂停': 'bg-gray-200 text-gray-500',
+            '已完成': 'bg-emerald-100 text-emerald-700',
+            '已关闭': 'bg-red-100 text-red-700',
+            '已拒绝': 'bg-red-100 text-red-700'
+        };
+        const className = statusConfig[status] || 'bg-gray-100 text-gray-500';
+        return `<span class='px-2 py-1 rounded-full text-xs font-semibold ${className}'>${status}</span>`;
+    }
+
+
+
+    // 页面加载完成后初始化
+    window.addEventListener('DOMContentLoaded', initPage);
     </script>
 </body>
-</html> 
+</html>

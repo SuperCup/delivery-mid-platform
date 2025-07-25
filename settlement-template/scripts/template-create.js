@@ -7,6 +7,166 @@ let templateInfo = {
     settlementTypes: []
 };
 
+// 资料库数据（从资料库模块获取）
+const materialLibrary = [
+    {
+        id: 1,
+        name: '嘉士伯2024年度框架合同',
+        type: 'contract',
+        customer: '嘉士伯（中国）投资有限公司',
+        description: '嘉士伯中国2024年度数字营销服务框架合同',
+        fileName: '嘉士伯2024年度框架合同.pdf',
+        tags: ['框架合同', '年度合同', '数字营销']
+    },
+    {
+        id: 2,
+        name: '春节营销活动报价单',
+        type: 'quotation',
+        customer: '嘉士伯（中国）投资有限公司',
+        description: '2024年春节营销活动整体报价方案',
+        fileName: '春节营销活动报价单_v2.xlsx',
+        tags: ['春节活动', '报价单', '营销方案']
+    },
+    {
+        id: 3,
+        name: '报价确认邮件截图',
+        type: 'quotation_confirm',
+        customer: '嘉士伯（中国）投资有限公司',
+        description: '客户确认春节营销活动报价的邮件截图',
+        fileName: '报价确认邮件_20240205.png',
+        tags: ['报价确认', '邮件截图', '客户确认']
+    },
+    {
+        id: 4,
+        name: '2月份广告投放账单明细',
+        type: 'bill_detail',
+        customer: '嘉士伯（中国）投资有限公司',
+        description: '2024年2月份各平台广告投放费用明细表',
+        fileName: '2月份广告投放账单明细.xlsx',
+        tags: ['账单明细', '广告投放', '费用统计']
+    },
+    {
+        id: 5,
+        name: '微信朋友圈广告投放截图',
+        type: 'ad_proof',
+        customer: '嘉士伯（中国）投资有限公司',
+        description: '春节期间微信朋友圈广告投放效果截图合集',
+        fileName: '微信朋友圈广告截图合集.zip',
+        tags: ['广告截图', '微信朋友圈', '投放凭证']
+    },
+    {
+        id: 6,
+        name: '春节营销活动复盘报告',
+        type: 'review_report',
+        customer: '嘉士伯（中国）投资有限公司',
+        description: '2024年春节营销活动效果分析与复盘总结',
+        fileName: '春节营销活动复盘报告_final.pptx',
+        tags: ['复盘报告', '效果分析', '营销总结']
+    }
+];
+
+// 环节管理模块的资料数据
+const processTemplates = [
+    { 
+        id: 1, 
+        name: '广告费结算单-盖章扫描件', 
+        acquisitionMethod: '业务人员提供', 
+        example: 'ad_fee_settlement.pdf',
+        type: '通用'
+    },
+    { 
+        id: 2, 
+        name: '服务费结算单-盖章扫描件', 
+        acquisitionMethod: '业务人员提供', 
+        example: 'service_fee_settlement.pdf',
+        type: '通用'
+    },
+    { 
+        id: 3, 
+        name: '广告费结算单-excel', 
+        acquisitionMethod: '业务人员提供', 
+        example: 'ad_fee_settlement.xlsx',
+        type: '通用'
+    },
+    { 
+        id: 4, 
+        name: '服务费结算单-excel', 
+        acquisitionMethod: '业务人员提供', 
+        example: 'service_fee_settlement.xlsx',
+        type: '通用'
+    },
+    { 
+        id: 5, 
+        name: '季度PO-盖章扫描件', 
+        acquisitionMethod: '业务人员提供', 
+        example: 'quarterly_po.pdf',
+        type: 'BU'
+    },
+    { 
+        id: 6, 
+        name: '年度合同--盖章扫描件', 
+        acquisitionMethod: '业务人员提供', 
+        example: 'annual_contract.pdf',
+        type: '总部'
+    }
+];
+
+// 客户管理数据
+const customerData = {
+    contacts: [
+        {
+            id: 1,
+            name: 'Owen',
+            position: '总部结算经理',
+            entity: '总部',
+            email: 'owen@company.com',
+            phone: '138-0000-0001',
+            department: '财务部',
+            role: '确认方'
+        },
+        {
+            id: 2,
+            name: '李四',
+            position: '结算专员',
+            entity: '湖南大区',
+            email: 'lisi@company.com',
+            phone: '138-0000-0002',
+            department: '财务部',
+            role: '确认方'
+        },
+        {
+            id: 3,
+            name: '王五',
+            position: '业务经理',
+            entity: '华东大区',
+            email: 'wangwu@company.com',
+            phone: '138-0000-0003',
+            department: '业务部',
+            role: '跟进人'
+        },
+        {
+            id: 4,
+            name: '赵六',
+            position: '财务主管',
+            entity: '华南大区',
+            email: 'zhaoliu@company.com',
+            phone: '138-0000-0004',
+            department: '财务部',
+            role: '确认方'
+        },
+        {
+            id: 5,
+            name: '钱七',
+            position: '项目经理',
+            entity: '华北大区',
+            email: 'qianqi@company.com',
+            phone: '138-0000-0005',
+            department: '项目部',
+            role: '跟进人'
+        }
+    ]
+};
+
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     initializeDragAndDrop();
@@ -565,6 +725,105 @@ function showTemplateInfoForm() {
     }
 
     propertyPanel.appendChild(propertyContent);
+    
+    // 为资料管理按钮绑定事件监听器
+    setTimeout(() => {
+        const createNewBtn = document.getElementById('createNewMaterialBtn');
+        const selectFromLibraryBtn = document.getElementById('selectFromLibraryBtn');
+        const selectFromTemplateBtn = document.getElementById('selectFromTemplateBtn');
+        
+        if (createNewBtn) {
+            createNewBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('创建新资料按钮被点击，准备显示模态框');
+                const modal = document.getElementById('createMaterialModal');
+                if (modal) {
+                    console.log('找到模态框元素，移除hidden类');
+                    modal.classList.remove('hidden');
+                    console.log('模态框当前类名:', modal.className);
+                } else {
+                    console.error('未找到createMaterialModal元素');
+                }
+            });
+        } else {
+            console.error('未找到createNewMaterialBtn按钮');
+        }
+        
+        if (selectFromLibraryBtn) {
+            selectFromLibraryBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showMaterialSelector();
+            });
+        }
+        
+        if (selectFromTemplateBtn) {
+            selectFromTemplateBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showProcessTemplateSelector();
+            });
+        }
+        
+        // 为删除资料按钮添加事件委托
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-material-btn') || e.target.closest('.remove-material-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const btn = e.target.classList.contains('remove-material-btn') ? e.target : e.target.closest('.remove-material-btn');
+                const materialId = btn.getAttribute('data-material-id');
+                if (materialId) {
+                    removeMaterialFromProcess(parseInt(materialId));
+                }
+            }
+        });
+    }, 100);
+    
+    // 使用setTimeout确保DOM元素已经渲染完成
+    setTimeout(() => {
+        // 添加资料管理按钮的事件监听器
+        const createMaterialBtn = document.getElementById('createMaterialBtn');
+        const selectMaterialBtn = document.getElementById('selectMaterialBtn');
+        const selectTemplateBtn = document.getElementById('selectTemplateBtn');
+        
+        if (createMaterialBtn) {
+            createMaterialBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showCreateMaterialForm();
+            });
+        }
+        
+        if (selectMaterialBtn) {
+            selectMaterialBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showMaterialSelector();
+            });
+        }
+        
+        if (selectTemplateBtn) {
+            selectTemplateBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showProcessTemplateSelector();
+            });
+        }
+        
+        // 添加删除资料按钮的事件委托
+        const propertyContent = document.querySelector('.property-content');
+        if (propertyContent) {
+            propertyContent.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-material-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const materialId = e.target.closest('.remove-material-btn').getAttribute('data-material-id');
+                    removeMaterialFromProcess(materialId);
+                }
+            });
+        }
+    }, 0);
 }
 
 // 更新模板名称
@@ -620,28 +879,16 @@ function showPropertyPanel(process) {
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">跟进人</label>
-                    <input type="text" name="follower" value="${process.data.follower || ''}" 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           onchange="updateProcessFollower(this.value)">
+                    <select name="follower" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            onchange="updateProcessFollower(this.value)">
+                        ${getFollowerOptions(process.data.follower)}
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">处理周期（天）</label>
                     <input type="number" name="process_cycle" value="${process.data.cycle || ''}" 
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                            onchange="updateProcessCycle(this.value)">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">必要资料</label>
-                    <div class="mt-2 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="window.location.href='material-management.html'">
-                                <i class="fas fa-plus mr-1"></i>创建新资料
-                            </button>
-                        </div>
-                        <div class="mt-2 space-y-4">
-                            ${getMaterialList(process)}
-                        </div>
-                    </div>
                 </div>
             `;
             break;
@@ -661,9 +908,10 @@ function showPropertyPanel(process) {
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">跟进人</label>
-                    <input type="text" name="follower" value="${process.data.follower || ''}" 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           onchange="updateProcessFollower(this.value)">
+                    <select name="follower" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            onchange="updateProcessFollower(this.value)">
+                        ${getFollowerOptions(process.data.follower)}
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">确认方</label>
@@ -722,9 +970,10 @@ function showPropertyPanel(process) {
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">跟进人</label>
-                    <input type="text" name="follower" value="${process.data.follower || ''}" 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           onchange="updateProcessFollower(this.value)">
+                    <select name="follower" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            onchange="updateProcessFollower(this.value)">
+                        ${getFollowerOptions(process.data.follower)}
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">处理周期（天）</label>
@@ -761,9 +1010,10 @@ function showPropertyPanel(process) {
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">跟进人</label>
-                    <input type="text" name="follower" value="${process.data.follower || ''}" 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           onchange="updateProcessFollower(this.value)">
+                    <select name="follower" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            onchange="updateProcessFollower(this.value)">
+                        ${getFollowerOptions(process.data.follower)}
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">处理周期（天）</label>
@@ -804,6 +1054,60 @@ function showPropertyPanel(process) {
     }
 
     propertyPanel.appendChild(propertyContent);
+    
+    // 为资料管理按钮绑定事件监听器
+    setTimeout(() => {
+        const createNewMaterialBtn = document.getElementById('createNewMaterialBtn');
+        const selectMaterialBtn = document.getElementById('selectMaterialBtn');
+        const selectTemplateBtn = document.getElementById('selectTemplateBtn');
+        const createMaterialBtn = document.getElementById('createMaterialBtn');
+        
+        if (createNewMaterialBtn) {
+            createNewMaterialBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('点击创建新资料按钮');
+                showCreateMaterialForm();
+            });
+        }
+        
+        if (selectMaterialBtn) {
+            selectMaterialBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('点击从资料库选择按钮');
+                showMaterialSelector();
+            });
+        }
+        
+        if (selectTemplateBtn) {
+            selectTemplateBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('点击从模板选择按钮');
+                showProcessTemplateSelector();
+            });
+        }
+        
+        if (createMaterialBtn) {
+            createMaterialBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('点击创建新资料按钮(底部)');
+                showCreateMaterialForm();
+            });
+        }
+        
+        // 为删除资料按钮添加事件委托
+        const materialList = document.querySelector('.property-content');
+        if (materialList) {
+            materialList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-material-btn') || e.target.closest('.remove-material-btn')) {
+                    e.preventDefault();
+                    const materialId = e.target.dataset.materialId || e.target.closest('.remove-material-btn').dataset.materialId;
+                    if (materialId) {
+                        removeMaterialFromProcess(materialId);
+                    }
+                }
+            });
+        }
+    }, 100);
 }
 
 // 更新环节名称
@@ -954,56 +1258,45 @@ function deleteProcess(index) {
 
 // 获取资料列表
 function getMaterialList(process) {
-    const materials = [
-        {
-            name: '广告费结算单-盖章扫描件',
-            acquisition: '从客户处获取',
-            example: 'settlement-template/examples/ad-fee-settlement.pdf'
-        },
-        {
-            name: '服务费结算单-盖章扫描件',
-            acquisition: '从客户处获取',
-            example: 'settlement-template/examples/service-fee-settlement.pdf'
-        },
-        {
-            name: '广告费结算单-excel',
-            acquisition: '从客户处获取',
-            example: 'settlement-template/examples/ad-fee-settlement.xlsx'
-        },
-        {
-            name: '服务费结算单-excel',
-            acquisition: '从客户处获取',
-            example: 'settlement-template/examples/service-fee-settlement.xlsx'
-        },
-        {
-            name: '季度PO-盖章扫描件',
-            acquisition: '从客户处获取',
-            example: 'settlement-template/examples/quarterly-po.pdf'
-        },
-        {
-            name: '年度合同--盖章扫描件',
-            acquisition: '从客户处获取',
-            example: 'settlement-template/examples/annual-contract.pdf'
-        }
-    ];
-
-    return materials.map(material => `
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-900">${material.name}</span>
-                <input type="radio" name="material_list" value="${material.name}" 
-                       class="rounded-full border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                       ${process.data.material === material.name ? 'checked' : ''}
-                       onchange="updateMaterialList(this)">
+    const selectedMaterials = process.data.selectedMaterials || [];
+    
+    return `
+        <div class="space-y-4">
+            <!-- 已选择的资料 -->
+            <div class="space-y-2">
+                ${selectedMaterials.map(material => `
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-900">${material.name}</div>
+                                <div class="text-xs text-gray-500 mt-1">${material.description || material.acquisitionMethod || ''}</div>
+                                ${material.tags ? `<div class="flex flex-wrap gap-1 mt-2">
+                                    ${material.tags.map(tag => `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">${tag}</span>`).join('')}
+                                </div>` : ''}
+                            </div>
+                            <button data-material-id="${material.id}" class="remove-material-btn text-red-500 hover:text-red-700 ml-2">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+                ${selectedMaterials.length === 0 ? '<div class="text-gray-500 text-sm text-center py-4">暂未选择资料</div>' : ''}
             </div>
-            <div class="text-xs text-gray-500 mb-2">获取方式：${material.acquisition}</div>
-            <div class="flex items-center">
-                <button class="text-blue-600 hover:text-blue-800 text-xs" onclick="previewMaterial('${material.example}')">
-                    <i class="fas fa-eye mr-1"></i>查看样例
+            
+            <!-- 添加资料按钮 -->
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" id="createMaterialBtn" class="bg-purple-600 text-white px-3 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-plus mr-1"></i>创建新资料
+                </button>
+                <button type="button" id="selectMaterialBtn" class="bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-database mr-1"></i>从资料库选择
+                </button>
+                <button type="button" id="selectTemplateBtn" class="bg-green-600 text-white px-3 py-2 rounded-md text-sm hover:bg-green-700 transition-colors">
+                    <i class="fas fa-template mr-1"></i>从模板选择
                 </button>
             </div>
         </div>
-    `).join('');
+    `;
 }
 
 // 更新资料列表
@@ -1108,12 +1401,12 @@ function updateConfirmationProof(value) {
 
 // 获取客户选项
 function getCustomerOptions(selectedValue) {
-    const customers = [
-        { id: 1, name: 'Owen', position: '总部结算经理', entity: '总部' },
-        { id: 2, name: '李四', position: '结算专员', entity: '湖南大区' }
-    ];
+    // 从客户管理数据中获取可作为确认方的联系人
+    const confirmers = customerData.contacts.filter(contact => 
+        contact.role === '确认方' || contact.department === '财务部'
+    );
 
-    return customers.map(customer => `
+    return confirmers.map(customer => `
         <option value="${customer.id}" ${selectedValue === customer.id ? 'selected' : ''}>
             ${customer.name} - ${customer.position} (${customer.entity})
         </option>
@@ -1126,6 +1419,20 @@ function updateConfirmer(value) {
         processes[selectedProcess].data.confirmer = value;
         renderProcesses();
     }
+}
+
+// 获取跟进人选项
+function getFollowerOptions(selectedValue) {
+    // 从客户管理数据中获取可作为跟进人的联系人
+    const followers = customerData.contacts.filter(contact => 
+        contact.role === '跟进人' || contact.department === '业务部' || contact.department === '项目部'
+    );
+
+    return followers.map(follower => `
+        <option value="${follower.id}" ${selectedValue === follower.id ? 'selected' : ''}>
+            ${follower.name} - ${follower.position} (${follower.entity})
+        </option>
+    `).join('');
 }
 
 // 切换自动确认状态
@@ -1157,9 +1464,378 @@ function toggleAutoConfirmation(button) {
 function updateCompletionProof(value) {
     if (selectedProcess !== null) {
         processes[selectedProcess].data.completionProof = value;
-        renderProcesses();
     }
 }
 
-// 其他函数保持不变...
-// ... existing code ... 
+// 显示资料选择器
+function showMaterialSelector() {
+    if (selectedProcess === null) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            closeMaterialSelector();
+        }
+    };
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden';
+    modalContent.onclick = function(e) {
+        e.stopPropagation();
+    };
+    
+    modalContent.innerHTML = `
+        <div class="flex items-center justify-between p-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-900">选择资料</h3>
+            <button id="closeMaterialBtn" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-4">
+            <div class="mb-4">
+                <input type="text" id="materialSearch" placeholder="搜索资料..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto" id="materialList">
+                ${renderMaterialLibrary()}
+            </div>
+        </div>
+        <div class="flex justify-end space-x-2 p-4 border-t bg-gray-50">
+            <button id="cancelMaterialBtn" class="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                取消
+            </button>
+            <button id="addMaterialBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                添加选中资料
+            </button>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+    window.materialSelectorModal = modal;
+    
+    // 添加事件监听器
+    document.getElementById('closeMaterialBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeMaterialSelector();
+    });
+    
+    document.getElementById('cancelMaterialBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeMaterialSelector();
+    });
+    
+    document.getElementById('addMaterialBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        addSelectedMaterials();
+    });
+    
+    document.getElementById('materialSearch').addEventListener('input', function(e) {
+        filterMaterials(e.target.value);
+    });
+}
+
+// 渲染资料库
+function renderMaterialLibrary() {
+    return materialLibrary.map(material => `
+        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex-1">
+                    <h4 class="text-sm font-medium text-gray-900 mb-1">${material.name}</h4>
+                    <p class="text-xs text-gray-500 mb-2">${material.description}</p>
+                    <div class="flex items-center text-xs text-gray-400 mb-2">
+                        <span class="mr-3">客户: ${material.customer}</span>
+                        <span>文件: ${material.fileName}</span>
+                    </div>
+                    ${material.tags ? `<div class="flex flex-wrap gap-1">
+                        ${material.tags.map(tag => `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">${tag}</span>`).join('')}
+                    </div>` : ''}
+                </div>
+                <input type="checkbox" value="${material.id}" class="material-checkbox ml-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            </div>
+        </div>
+    `).join('');
+}
+
+// 过滤资料
+function filterMaterials(searchTerm) {
+    const filteredMaterials = materialLibrary.filter(material => 
+        material.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        material.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        material.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (material.tags && material.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
+    );
+    
+    const materialListContainer = document.getElementById('materialList');
+    materialListContainer.innerHTML = filteredMaterials.map(material => `
+        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex-1">
+                    <h4 class="text-sm font-medium text-gray-900 mb-1">${material.name}</h4>
+                    <p class="text-xs text-gray-500 mb-2">${material.description}</p>
+                    <div class="flex items-center text-xs text-gray-400 mb-2">
+                        <span class="mr-3">客户: ${material.customer}</span>
+                        <span>文件: ${material.fileName}</span>
+                    </div>
+                    ${material.tags ? `<div class="flex flex-wrap gap-1">
+                        ${material.tags.map(tag => `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">${tag}</span>`).join('')}
+                    </div>` : ''}
+                </div>
+                <input type="checkbox" value="${material.id}" class="material-checkbox ml-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            </div>
+        </div>
+    `).join('');
+}
+
+// 添加选中的资料
+function addSelectedMaterials() {
+    if (selectedProcess === null) return;
+    
+    const checkboxes = document.querySelectorAll('.material-checkbox:checked');
+    const selectedMaterialIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    
+    if (selectedMaterialIds.length === 0) {
+        alert('请选择至少一个资料');
+        return;
+    }
+    
+    // 获取选中的资料详情
+    const selectedMaterials = materialLibrary.filter(material => 
+        selectedMaterialIds.includes(material.id)
+    );
+    
+    // 添加到当前环节
+    if (!processes[selectedProcess].data.selectedMaterials) {
+        processes[selectedProcess].data.selectedMaterials = [];
+    }
+    
+    // 避免重复添加
+    selectedMaterials.forEach(material => {
+        const exists = processes[selectedProcess].data.selectedMaterials.some(existing => existing.id === material.id);
+        if (!exists) {
+            processes[selectedProcess].data.selectedMaterials.push(material);
+        }
+    });
+    
+    // 关闭选择器并刷新属性面板
+    closeMaterialSelector();
+    showPropertyPanel(processes[selectedProcess]);
+}
+
+// 关闭资料选择器
+function closeMaterialSelector() {
+    if (window.materialSelectorModal) {
+        document.body.removeChild(window.materialSelectorModal);
+        window.materialSelectorModal = null;
+    }
+}
+
+// 从环节中移除资料
+function removeMaterialFromProcess(materialId) {
+    if (selectedProcess === null || !processes[selectedProcess].data.selectedMaterials) return;
+    
+    processes[selectedProcess].data.selectedMaterials = processes[selectedProcess].data.selectedMaterials.filter(
+        material => material.id !== parseInt(materialId)
+    );
+    
+    // 刷新属性面板
+    showPropertyPanel(processes[selectedProcess]);
+}
+
+// 显示环节模板选择器
+function showProcessTemplateSelector() {
+    if (selectedProcess === null) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[80vh] overflow-hidden';
+    modalContent.innerHTML = `
+        <div class="flex items-center justify-between p-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-900">选择环节模板资料</h3>
+            <button class="close-btn text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-4">
+            <div class="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
+                ${renderProcessTemplates()}
+            </div>
+        </div>
+        <div class="flex justify-end space-x-2 p-4 border-t bg-gray-50">
+            <button class="cancel-btn px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                取消
+            </button>
+            <button class="add-btn px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                添加选中模板
+            </button>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    
+    // 添加事件监听器
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeProcessTemplateSelector();
+        }
+    });
+    
+    modalContent.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+    
+    const closeBtn = modalContent.querySelector('.close-btn');
+    closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeProcessTemplateSelector();
+    });
+    
+    const cancelBtn = modalContent.querySelector('.cancel-btn');
+    cancelBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeProcessTemplateSelector();
+    });
+    
+    const addBtn = modalContent.querySelector('.add-btn');
+    addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        addSelectedTemplates();
+    });
+    
+    document.body.appendChild(modal);
+    window.templateSelectorModal = modal;
+}
+
+// 渲染环节模板
+function renderProcessTemplates() {
+    return processTemplates.map(template => `
+        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <h4 class="text-sm font-medium text-gray-900">${template.name}</h4>
+                    <div class="text-xs text-gray-500 mt-1">
+                        <span class="mr-3">获取方式: ${template.acquisitionMethod}</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">${template.type}</span>
+                    </div>
+                </div>
+                <input type="checkbox" value="${template.id}" class="template-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500">
+            </div>
+        </div>
+    `).join('');
+}
+
+// 添加选中的模板
+function addSelectedTemplates() {
+    if (selectedProcess === null) return;
+    
+    const checkboxes = document.querySelectorAll('.template-checkbox:checked');
+    const selectedTemplateIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    
+    if (selectedTemplateIds.length === 0) {
+        alert('请选择至少一个模板');
+        return;
+    }
+    
+    // 获取选中的模板详情
+    const selectedTemplates = processTemplates.filter(template => 
+        selectedTemplateIds.includes(template.id)
+    );
+    
+    // 添加到当前环节
+    if (!processes[selectedProcess].data.selectedMaterials) {
+        processes[selectedProcess].data.selectedMaterials = [];
+    }
+    
+    // 避免重复添加
+    selectedTemplates.forEach(template => {
+        const exists = processes[selectedProcess].data.selectedMaterials.some(existing => existing.id === template.id);
+        if (!exists) {
+            processes[selectedProcess].data.selectedMaterials.push({
+                id: template.id,
+                name: template.name,
+                acquisitionMethod: template.acquisitionMethod,
+                type: template.type,
+                example: template.example
+            });
+        }
+    });
+    
+    // 关闭选择器并刷新属性面板
+    closeProcessTemplateSelector();
+    showPropertyPanel(processes[selectedProcess]);
+}
+
+// 关闭环节模板选择器
+function closeProcessTemplateSelector() {
+    if (window.templateSelectorModal) {
+        document.body.removeChild(window.templateSelectorModal);
+        window.templateSelectorModal = null;
+    }
+}
+
+// 显示创建新资料表单
+function showCreateMaterialForm() {
+    document.getElementById('createMaterialModal').classList.remove('hidden');
+}
+
+// 关闭创建新资料表单
+function closeCreateMaterialForm() {
+    document.getElementById('createMaterialModal').classList.add('hidden');
+    // 清空表单
+    document.getElementById('materialName').value = '';
+    document.getElementById('materialType').value = 'contract';
+    document.getElementById('materialDescription').value = '';
+    document.getElementById('materialTags').value = '';
+}
+
+// 保存新资料
+function saveNewMaterial() {
+    const name = document.getElementById('materialName').value.trim();
+    const type = document.getElementById('materialType').value;
+    const description = document.getElementById('materialDescription').value.trim();
+    const tags = document.getElementById('materialTags').value.trim();
+    
+    if (!name) {
+        alert('请输入资料名称');
+        return;
+    }
+    
+    // 创建新资料对象
+    const newMaterial = {
+        id: materialLibrary.length + 1,
+        name: name,
+        type: type,
+        customer: '新建资料',
+        description: description || '用户创建的新资料',
+        fileName: name + '.pdf',
+        tags: tags ? tags.split(',').map(tag => tag.trim()) : []
+    };
+    
+    // 添加到资料库
+    materialLibrary.push(newMaterial);
+    
+    // 如果当前有选中的环节，将新资料添加到该环节
+    if (selectedProcess !== null) {
+        if (!processes[selectedProcess].materials) {
+            processes[selectedProcess].materials = [];
+        }
+        processes[selectedProcess].materials.push(newMaterial.id);
+        
+        // 刷新属性面板
+        showPropertyPanel(processes[selectedProcess]);
+    }
+    
+    // 关闭模态框
+    closeCreateMaterialForm();
+    
+    alert('新资料创建成功！');
+}

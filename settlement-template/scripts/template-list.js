@@ -863,99 +863,9 @@ function switchProcessType(type) {
 // 加载环节列表
 function loadProcessList(type) {
     console.log('Loading process list for type:', type); // 调试日志
-    const processList = document.getElementById('processList');
     
-    if (!processList) {
-        console.error('Process list container not found');
-        return;
-    }
-
-    // 清空列表
-    processList.innerHTML = '';
-
-    // 创建环节列表数据
-    const processes = [
-        // 资料准备环节样例
-        {
-            id: 1,
-            type: 'material',
-            name: '广告费结算单准备',
-            description: '准备广告费结算单及相关资料',
-            follower: '张三',
-            cycle: '3个工作日',
-            material: {
-                name: '广告费结算单-盖章扫描件',
-                acquisitionMethod: '业务人员提供',
-                example: 'ad_fee_settlement.pdf',
-                updateTime: '2024-03-20 14:30',
-                type: '通用'
-            }
-        },
-        {
-            id: 2,
-            type: 'material',
-            name: '核销明细准备',
-            description: '准备核销明细及相关资料',
-            follower: '李四',
-            cycle: '2个工作日',
-            materials: [
-                { name: '核销明细-excel' },
-                { name: '资源位截图' }
-            ]
-        },
-        // 结算交付确认环节样例
-        {
-            id: 3,
-            type: 'delivery',
-            name: '总部确认',
-            description: '等待总部确认结算金额',
-            follower: '王五',
-            cycle: '5个工作日',
-            confirmer: '总部财务部',
-            deliveryMethod: '邮件确认',
-            deliveryTemplate: {
-                name: '总部确认模板.pdf',
-                url: 'delivery_template.pdf',
-                updateTime: '2024-03-20 15:00'
-            }
-        },
-        {
-            id: 4,
-            type: 'delivery',
-            name: '客户确认',
-            description: '等待客户确认结算金额',
-            follower: '赵六',
-            cycle: '7个工作日',
-            confirmer: '客户财务部',
-            deliveryMethod: '邮件确认'
-        },
-        // 客户系统结算环节样例
-        {
-            id: 5,
-            type: 'customer',
-            name: '客户系统结算',
-            description: '在客户系统中完成结算操作',
-            follower: '钱七',
-            cycle: '5个工作日',
-            instruction: '登录客户系统，上传结算单，等待审核',
-            instructionFile: {
-                name: '操作说明.pdf',
-                url: 'instruction.pdf',
-                updateTime: '2024-03-20 15:30'
-            }
-        }
-    ];
-
-    // 根据类型筛选环节
-    const filteredProcesses = processes.filter(process => process.type === type);
-    console.log('Filtered processes:', filteredProcesses); // 调试日志
-
-    // 渲染环节列表（拼接HTML字符串）
-    let html = '';
-    filteredProcesses.forEach(process => {
-        html += createProcessCard(process);
-    });
-    processList.innerHTML = html;
+    // 直接调用renderProcessList函数来渲染环节列表
+    renderProcessList(type);
 }
 
 // 创建环节卡片
@@ -967,6 +877,7 @@ function createProcessCard(process) {
 
     const typeClass = process.type === 'material' ? 'process-type-material' : 
                      process.type === 'delivery' ? 'process-type-delivery' : 
+                     process.type === 'acceptance' ? 'process-type-acceptance' :
                      'process-type-customer';
 
     return `
@@ -1005,23 +916,49 @@ function createProcessCard(process) {
                         <span class="info-label">确认方式：</span>
                         <span class="info-value">${process.deliveryMethod || '未指定'}</span>
                     </div>
-                    <div class="materials-list">
-                        <span class="info-label">确认模板：</span>
-                        <div class="material-item">
-                            <span class="material-name">${process.deliveryTemplate ? process.deliveryTemplate.name : '无'}</span>
-                            <button class="action-button preview-btn" onclick="previewMaterialDetail(${JSON.stringify(process.material)}, 'material')">预览</button>
+                    ${process.deliveryTemplate ? `
+                        <div class="materials-list">
+                            <span class="info-label">确认模板：</span>
+                            <div class="material-item">
+                                <span class="material-name">${process.deliveryTemplate.name}</span>
+                                <button class="action-button preview-btn" onclick="previewMaterialDetail(${JSON.stringify(process.deliveryTemplate)}, 'template')">预览</button>
+                            </div>
                         </div>
+                    ` : ''}
+                ` : ''}
+                ${process.type === 'acceptance' ? `
+                    <div class="info-item">
+                        <span class="info-label">验收方：</span>
+                        <span class="info-value">${process.acceptor || '未指定'}</span>
                     </div>
-                    
+                    <div class="info-item">
+                        <span class="info-label">验收方式：</span>
+                        <span class="info-value">${process.acceptanceMethod || '未指定'}</span>
+                    </div>
+                    ${process.acceptanceTemplate ? `
+                        <div class="materials-list">
+                            <span class="info-label">验收模板：</span>
+                            <div class="material-item">
+                                <span class="material-name">${process.acceptanceTemplate.name}</span>
+                                <button class="action-button preview-btn" onclick="previewMaterialDetail(${JSON.stringify(process.acceptanceTemplate)}, 'template')">预览</button>
+                            </div>
+                        </div>
+                    ` : ''}
                 ` : ''}
                 ${process.type === 'customer' ? `
-                    <div class="materials-list">
+                    <div class="info-item">
                         <span class="info-label">操作说明：</span>
-                        <div class="material-item">
-                            <span class="material-name">${process.instructionFile ? process.instructionFile.name : '无'}</span>
-                            <button class="action-button preview-btn" onclick="previewMaterialDetail(${JSON.stringify(process.material)}, 'material')">预览</button>
-                        </div>
+                        <span class="info-value">${process.instruction || '无说明'}</span>
                     </div>
+                    ${process.instructionFile ? `
+                        <div class="materials-list">
+                            <span class="info-label">操作文档：</span>
+                            <div class="material-item">
+                                <span class="material-name">${process.instructionFile.name}</span>
+                                <button class="action-button preview-btn" onclick="previewMaterialDetail(${JSON.stringify(process.instructionFile)}, 'instruction')">预览</button>
+                            </div>
+                        </div>
+                    ` : ''}
                 ` : ''}
             </div>
             <div class="actions">
@@ -1365,7 +1302,105 @@ function deleteProcess(type, id) {
 function loadProcessData() {
     // 这里可以添加从服务器加载数据的逻辑
     // 目前使用默认数据
-    processData.material = defaultMaterialProcesses;
+    
+    // 资料准备环节数据
+    processData.material = [
+        {
+            id: 'material_1',
+            name: '销售合同收集',
+            type: 'material',
+            description: '收集并整理销售合同相关文件',
+            follower: '张三',
+            cycle: '2-3个工作日',
+            material: { name: '销售合同正本、合同附件、商务条款' }
+        },
+        {
+            id: 'material_2',
+            name: '结算单据准备',
+            type: 'material',
+            description: '准备结算所需的各类单据',
+            follower: '李四',
+            cycle: '1-2个工作日',
+            material: { name: '结算确认单、发票、对账单' }
+        }
+    ];
+    
+    // 结算交付确认环节数据
+    processData.delivery = [
+        {
+            id: 'delivery_1',
+            name: '总部结算确认',
+            type: 'delivery',
+            description: '总部财务部门确认结算单据的准确性和完整性',
+            follower: '王五',
+            cycle: '3-5个工作日',
+            confirmer: '总部财务部',
+            deliveryMethod: '邮件确认',
+            deliveryTemplate: { name: '结算确认模板' }
+        },
+        {
+            id: 'delivery_2',
+            name: 'BU结算确认',
+            type: 'delivery',
+            description: 'BU负责人确认结算金额和结算条件',
+            follower: '赵六',
+            cycle: '2-3个工作日',
+            confirmer: 'BU负责人',
+            deliveryMethod: '系统确认',
+            deliveryTemplate: { name: 'BU确认模板' }
+        }
+    ];
+    
+    // 结算验收确认环节数据
+    processData.acceptance = [
+        {
+            id: 'acceptance_1',
+            name: '客户验收确认',
+            type: 'acceptance',
+            description: '客户方确认服务交付质量和结算金额',
+            follower: '钱七',
+            cycle: '5-7个工作日',
+            acceptor: '客户方',
+            acceptanceMethod: '现场验收',
+            acceptanceTemplate: { name: '客户验收模板' }
+        },
+        {
+            id: 'acceptance_2',
+            name: '项目验收确认',
+            type: 'acceptance',
+            description: '项目组确认项目完成情况和交付成果',
+            follower: '孙八',
+            cycle: '3-4个工作日',
+            acceptor: '项目组',
+            acceptanceMethod: '文档验收',
+            acceptanceTemplate: { name: '项目验收模板' }
+        }
+    ];
+    
+    // 客户系统结算环节数据
+    processData.customer = [
+        {
+            id: 'customer_1',
+            name: '客户系统录入',
+            type: 'customer',
+            description: '在客户结算系统中录入结算信息',
+            follower: '周九',
+            cycle: '1-2个工作日',
+            instruction: '登录客户系统，按照流程录入结算信息',
+            instructionFile: { name: '系统操作指南' }
+        },
+        {
+            id: 'customer_2',
+            name: '客户系统审批',
+            type: 'customer',
+            description: '客户系统内部审批流程确认',
+            follower: '吴十',
+            cycle: '3-5个工作日',
+            instruction: '跟进客户系统内部审批进度，确保及时通过',
+            instructionFile: { name: '审批流程说明' }
+        }
+    ];
+    
     renderProcessList(currentProcessType);
 }
 
@@ -2061,4 +2096,205 @@ function previewMaterialDetail(obj, type) {
     }
     content.innerHTML = html;
     modal.style.display = 'block';
+}
+
+// 显示环节创建抽屉
+function showProcessCreateDrawer() {
+    const drawerHtml = `
+        <div id="processCreateDrawer" class="drawer-overlay">
+            <div class="drawer-content">
+                <div class="drawer-header">
+                    <h3>新增环节</h3>
+                    <button onclick="closeProcessCreateDrawer()" class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="drawer-body">
+                    <form id="processCreateForm">
+                        <div class="form-group">
+                            <label for="processType">环节类型 <span class="required">*</span></label>
+                            <select id="processType" name="processType" required>
+                                <option value="">请选择环节类型</option>
+                                <option value="material">资料准备</option>
+                                <option value="delivery">结算交付确认</option>
+                                <option value="acceptance">结算验收确认</option>
+                                <option value="customer">客户系统结算</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="processName">环节名称 <span class="required">*</span></label>
+                            <input type="text" id="processName" name="processName" placeholder="请输入环节名称" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="processDescription">环节说明</label>
+                            <textarea id="processDescription" name="processDescription" placeholder="请输入环节说明" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="processFollower">跟进人 <span class="required">*</span></label>
+                            <input type="text" id="processFollower" name="processFollower" placeholder="请输入跟进人" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="processCycle">处理周期</label>
+                            <input type="text" id="processCycle" name="processCycle" placeholder="例如：3个工作日">
+                        </div>
+                        
+                        <!-- 资料准备类型特有字段 -->
+                        <div id="materialFields" class="type-specific-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="materialName">资料名称</label>
+                                <input type="text" id="materialName" name="materialName" placeholder="请输入资料名称">
+                            </div>
+                            <div class="form-group">
+                                <label for="acquisitionMethod">获取方式</label>
+                                <input type="text" id="acquisitionMethod" name="acquisitionMethod" placeholder="例如：业务人员提供">
+                            </div>
+                            <div class="form-group">
+                                <label for="materialType">资料类型</label>
+                                <select id="materialType" name="materialType">
+                                    <option value="通用">通用</option>
+                                    <option value="BU">BU</option>
+                                    <option value="总部">总部</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- 结算交付确认类型特有字段 -->
+                        <div id="deliveryFields" class="type-specific-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="confirmer">确认方</label>
+                                <input type="text" id="confirmer" name="confirmer" placeholder="请输入确认方">
+                            </div>
+                            <div class="form-group">
+                                <label for="deliveryMethod">确认方式</label>
+                                <input type="text" id="deliveryMethod" name="deliveryMethod" placeholder="例如：邮件确认">
+                            </div>
+                        </div>
+                        
+                        <!-- 结算验收确认类型特有字段 -->
+                        <div id="acceptanceFields" class="type-specific-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="acceptor">验收方</label>
+                                <input type="text" id="acceptor" name="acceptor" placeholder="请输入验收方">
+                            </div>
+                            <div class="form-group">
+                                <label for="acceptanceMethod">验收方式</label>
+                                <input type="text" id="acceptanceMethod" name="acceptanceMethod" placeholder="例如：验收报告">
+                            </div>
+                        </div>
+                        
+                        <!-- 客户系统结算类型特有字段 -->
+                        <div id="customerFields" class="type-specific-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="instruction">操作说明</label>
+                                <textarea id="instruction" name="instruction" placeholder="请输入操作说明" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="drawer-footer">
+                    <button type="button" onclick="closeProcessCreateDrawer()" class="btn-secondary">取消</button>
+                    <button type="button" onclick="submitProcessCreate()" class="btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', drawerHtml);
+    
+    // 绑定环节类型切换事件
+    document.getElementById('processType').addEventListener('change', function() {
+        const type = this.value;
+        // 隐藏所有特定字段
+        document.querySelectorAll('.type-specific-fields').forEach(field => {
+            field.style.display = 'none';
+        });
+        
+        // 显示对应类型的字段
+        if (type === 'material') {
+            document.getElementById('materialFields').style.display = 'block';
+        } else if (type === 'delivery') {
+            document.getElementById('deliveryFields').style.display = 'block';
+        } else if (type === 'acceptance') {
+            document.getElementById('acceptanceFields').style.display = 'block';
+        } else if (type === 'customer') {
+            document.getElementById('customerFields').style.display = 'block';
+        }
+    });
+}
+
+// 关闭环节创建抽屉
+function closeProcessCreateDrawer() {
+    const drawer = document.getElementById('processCreateDrawer');
+    if (drawer) {
+        drawer.remove();
+    }
+}
+
+// 提交环节创建
+function submitProcessCreate() {
+    const form = document.getElementById('processCreateForm');
+    const formData = new FormData(form);
+    
+    // 验证必填字段
+    const processType = formData.get('processType');
+    const processName = formData.get('processName');
+    const processFollower = formData.get('processFollower');
+    
+    if (!processType || !processName || !processFollower) {
+        alert('请填写所有必填字段');
+        return;
+    }
+    
+    // 构建环节数据
+    const newProcess = {
+        id: Date.now().toString(), // 使用时间戳作为临时ID
+        type: processType,
+        name: processName,
+        description: formData.get('processDescription') || '',
+        follower: processFollower,
+        cycle: formData.get('processCycle') || ''
+    };
+    
+    // 根据类型添加特定字段
+    if (processType === 'material') {
+        newProcess.material = {
+            name: formData.get('materialName') || '',
+            acquisitionMethod: formData.get('acquisitionMethod') || '',
+            type: formData.get('materialType') || '通用',
+            updateTime: new Date().toLocaleString('zh-CN')
+        };
+    } else if (processType === 'delivery') {
+        newProcess.confirmer = formData.get('confirmer') || '';
+        newProcess.deliveryMethod = formData.get('deliveryMethod') || '';
+        newProcess.deliveryTemplate = { name: '待上传' };
+    } else if (processType === 'acceptance') {
+        newProcess.acceptor = formData.get('acceptor') || '';
+        newProcess.acceptanceMethod = formData.get('acceptanceMethod') || '';
+        newProcess.acceptanceTemplate = { name: '待上传' };
+    } else if (processType === 'customer') {
+        newProcess.instruction = formData.get('instruction') || '';
+        newProcess.instructionFile = { name: '待上传' };
+    }
+    
+    console.log('Creating process:', newProcess);
+    
+    // 将新环节添加到对应类型的数组中
+    if (!processData[processType]) {
+        processData[processType] = [];
+    }
+    processData[processType].push(newProcess);
+    
+    // 显示成功消息
+    alert('环节创建成功！');
+    
+    // 关闭抽屉
+    closeProcessCreateDrawer();
+    
+    // 刷新环节列表
+    renderProcessList(processType);
+    
+    // 如果当前显示的类型与新创建的类型不同，切换到新创建的类型
+    if (currentProcessType !== processType) {
+        switchProcessType(processType);
+    }
 }

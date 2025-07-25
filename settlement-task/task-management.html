@@ -7,10 +7,38 @@
     <link href="../styles/task-tracking.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .btn-primary {
+            @apply px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2 transition-all duration-200 shadow-sm hover:shadow-md;
+        }
+        .btn-secondary {
+            @apply px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center space-x-2 transition-all duration-200;
+        }
+        .btn-outline {
+            @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center space-x-2 transition-all duration-200;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <!-- 页面标题和操作按钮 -->
+        <!-- 面包屑导航 -->
+        <nav class="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <a href="../index.html" class="hover:text-blue-600 transition-colors">
+                <i class="fas fa-home mr-1"></i>业务中台
+            </a>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+            <a href="pms-internal-settlement.html" class="hover:text-blue-600 transition-colors">
+                PMS内部结算单管理
+            </a>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+            <a href="settlement-merge.html" class="hover:text-blue-600 transition-colors">
+                外部结算单管理
+            </a>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+            <span class="text-gray-800 font-medium">结算任务管理</span>
+        </nav>
+        
+        <!-- 页面标题 -->
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-2xl font-bold text-gray-800">结算任务管理</h1>
         </div>
@@ -38,9 +66,7 @@
                     <button id="refreshBtn" class="flex items-center px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50">
                         <i class="fas fa-sync-alt mr-1"></i>刷新
                     </button>
-                    <button id="createProjectBtn" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                        <i class="fas fa-plus mr-1"></i>结算模板管理
-                    </button>
+
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -79,9 +105,8 @@
                 <div class="flex items-start">
                     <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
                     <div>
-                        <div class="mb-2">1、PMS创建结算单后，系统会根据结算单所选结算科目，自动拆单生成多张外部结算单，指引业务人员顺利完成结算，如果你发现某个外部结算单是非必须的，可在列表中选择放弃，并备注理由。</div>
-                        <div class="mb-2">2、任务中的环节可并行推进，当前环节按流程中拖拽顺序显示。</div>
-                        <div>3、实际结算金额需要在完成任务时填写，完成任务需要到任务详情中，检查所有环节信息都配置正确，并提交完成确认。</div>
+                        <div class="mb-2">1、任务中的环节可并行推进，当前环节按流程中拖拽顺序显示。</div>
+                        <div>2、实际结算金额需要在完成任务时填写，完成任务需要到任务详情中，检查所有环节信息都配置正确，并提交完成确认。</div>
                     </div>
                 </div>
             </div>
@@ -201,4 +226,4 @@
 
     <script src="scripts/task-management.js"></script>
 </body>
-</html> 
+</html>

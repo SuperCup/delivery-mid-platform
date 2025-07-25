@@ -243,11 +243,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // 获取URL参数
     const urlParams = new URLSearchParams(window.location.search);
     const settlementNo = urlParams.get('settlementNo');
+    const mergeId = urlParams.get('mergeId');
     
     // 如果URL中包含结算单编号，则填充到搜索框
     if (settlementNo) {
         document.getElementById('settlementNoFilter').value = settlementNo;
         // 触发搜索
+        filterTasks();
+    }
+    
+    // 如果URL中包含合并结算单ID，则显示相关信息
+    if (mergeId) {
+        // 在页面标题下方显示来源信息
+        const titleContainer = document.querySelector('.container .flex.justify-between.items-center.mb-8');
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800';
+        infoDiv.innerHTML = `<i class="fas fa-info-circle mr-2"></i>当前显示外部结算单 <strong>${mergeId}</strong> 的相关任务`;
+        titleContainer.parentNode.insertBefore(infoDiv, titleContainer.nextSibling);
+        
+        // 根据mergeId筛选任务（这里可以根据实际业务逻辑调整）
+        document.getElementById('settlementNoFilter').value = mergeId;
         filterTasks();
     }
 
@@ -374,6 +389,7 @@ function renderTaskList(tasksToRender) {
                         <i class="fas fa-info-circle"></i> 查看放弃理由
                     </button>
                 ` : ''}
+
             </td>
         </tr>
     `).join('');
@@ -1027,4 +1043,7 @@ function navigateProcess(taskId, targetIndex) {
 
     // 重新显示环节详情
     showProcessDrawer(taskId);
-} 
+}
+
+// 生成外部结算单
+// 生成外部结算单相关功能已移除
