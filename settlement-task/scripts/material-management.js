@@ -65,12 +65,12 @@ let customerData = {
     ]
 };
 
-let materialTypes = ['PO/合同', '账单', '流程文件', '其他'];
+let materialTypes = ['PO', '合同', '账单', '流程文件', '其他'];
 let materialData = [
     {
         id: 1,
         name: '嘉士伯2024年度框架合同',
-        type: 'PO/合同',
+        type: '合同',
         customer: '嘉士伯',
         project: 'CB2024001',
         description: '2024年度框架合作协议',
@@ -626,8 +626,10 @@ function getFileIconClass(fileName) {
 
 function getTypeColor(type) {
     switch (type) {
-        case 'PO/合同':
+        case 'PO':
             return 'bg-blue-100 text-blue-800';
+        case '合同':
+            return 'bg-indigo-100 text-indigo-800';
         case '账单':
             return 'bg-green-100 text-green-800';
         case '流程文件':
@@ -699,7 +701,7 @@ function renderTypeList() {
     container.innerHTML = materialTypes.map(type => `
         <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <span class="text-gray-900">${type}</span>
-            ${!['PO/合同', '账单'].includes(type) ? `
+            ${!['PO', '合同', '账单'].includes(type) ? `
                 <button class="text-red-600 hover:text-red-800 transition-colors duration-200" 
                         onclick="deleteType('${type}')">
                     <i class="fas fa-trash"></i>
